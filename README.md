@@ -1,7 +1,8 @@
 
 # CoffeeScript Tutorial
 
-This is a
+This is an interactive tutorial for CoffeeScript, geared to those with little
+knowledge of programming.
 
 ## Prior Art
 
@@ -9,5 +10,5 @@ This is a
 * [Is There a Screencast/Tutorial Site for CoffeeScript](http://stackoverflow.com/questions/5124706/is-there-a-screencast-tutorial-site-for-coffeescript)
 * [CoffeeScript Tutorial Round-Up](http://renaissancenerd.net/post/5454665475/coffeescript-tutorial-round-up)
 * [CoffeeScript Basics — A Teach Me to Code Tutorial](http://teachmetocode.com/screencasts/coffeescript-basics-a-teach-me-to-code-tutorial/)
-* [Getting Started with CoffeeScript](http://www.re-cycledair.com/getting-started-with-coffeescript)
+* [Getting Started with CoffeeScript](http://www.re-cycledair.com/getting-started-with-coffeescriptg
 
