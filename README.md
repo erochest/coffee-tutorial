@@ -11,4 +11,5 @@ knowledge of programming.
 * [CoffeeScript Tutorial Round-Up](http://renaissancenerd.net/post/5454665475/coffeescript-tutorial-round-up)
 * [CoffeeScript Basics — A Teach Me to Code Tutorial](http://teachmetocode.com/screencasts/coffeescript-basics-a-teach-me-to-code-tutorial/)
 * [Getting Started with CoffeeScript](http://www.re-cycledair.com/getting-started-with-coffeescript)
+* [CoffeeScript Koans](https://github.com/sleepyfox/coffeescript-koans)
 
