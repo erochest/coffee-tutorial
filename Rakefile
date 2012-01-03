@@ -18,3 +18,19 @@ namespace :coffee do
   end
 end
 
+namespace :compass do
+  desc 'This compiles the Compass (SCSS) files.'
+  task :compile do
+    sh %{compass compile . --css-dir=css}
+  end
+
+  desc 'This watches the SCSS files.'
+  task :watch do
+    sh %{compass watch . --css-dir=css}
+  end
+end
+
+desc 'This watches both the Coffee Script and Compass files.'
+multitask :watch => ['coffee:watch',
+                     'compass:watch']
+
