@@ -3,9 +3,136 @@
  * Import this file using the following HTML or equivalent:
  * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
 
-@import "compass/reset";
+/*
+ * TODO:
+ * ToC.
+ * Storing code, bookmarks between pages and sessions.
+ */
 
-#canvas {
-	border: 1px solid red;
+@import "compass/reset";
+@import "compass/typography/lists";
+@import "compass/css3/images";
+@import "compass/css3/border-radius";
+@import "compass/typography/links/unstyled-link";
+@import "compass/typography/links/link-colors";
+@import "compass/utilities/general/clearfix";
+@import "compass/utilities/general/float";
+
+/* Color Schemes and Gradients */
+$a-dark1: #03426a;
+$a-dark2: #24587a;
+$a-primary: #0a67a3;
+$a-light1: #65a6d1;
+$a-light2: #3e97d1;
+
+$b-dark1: #a65c00;
+$b-dark2: #bf8030;
+$b-primary: #ff8e00;
+$b-light1: #ffaa40;
+$b-light2: #ffc173;
+
+$gradient: linear-gradient($a-light2, $a-dark2);
+$main-gradient: linear-gradient($a-light2, $a-primary);
+$light-gradient: linear-gradient(white, #eee 70%, #ddd);
+$b-gradient: linear-gradient($b-light2, $b-primary 70%, $b-dark2);
+$button-gradient: linear-gradient($b-light1, $b-light2);
+
+$text-light: white;
+$text-dark: black;
+
+$margin: 12pt;
+
+@mixin box($width: $margin) {
+	margin: $width;
+	padding: $width;
+}
+
+@mixin window($gradient: $gradient, $width: $margin) {
+	@include box($width);
+	@include background-image($gradient);
+	@include border-radius();
+}
+
+/* TODO: hover */
+@mixin button($gradient) {
+	@include background-image($gradient);
+	@include border-radius();
+	@include float-right;
+	margin-top: 0.5 * $margin;
+	margin-left: 0.25 * $margin;
+	margin-right: 0.25 * $margin;
+	border: 0pt;
+	width: 40pt;
+	height: 1.5 * $margin;
+}
+
+body {
+	font-family: 'Duru Sans', sans-serif;
+	background-color: white;
+}
+
+#contentbar {
+	@include float-left;
+	width: 33%;
+	margin-right: $margin;
+
+	/* TODO: scroll bar on overflow */
+	#content {
+		@include background-image($light-gradient);
+		height: 500pt + $margin;
+	}
+}
+
+#repl {
+	@include float-left;
+	width: 65%;
+}
+
+#sandbox {
+	background-color: $a-light1;
+	width: 100%;
+	height: 300pt;
+	margin-bottom: 0.5 * $margin;
+}
+
+#replinput {
+	@include background-image($light-gradient);
+	font-family: 'Inconsolata', sans-serif;
+	font-size: $margin;
+	width: 100%;
+	height: 200pt;
+}
+
+button {
+	@include button($button-gradient);
+}
+
+button#replgo {
+	@include button($b-gradient);
+}
+
+/* TODO: make the links buttons */
+div#topmenu ul {
+	@include horizontal-list;
+	@include window();
+
+	li {
+		width: 100pt;
+
+		a {
+			@include unstyled-link;
+			@include link-colors(#eee, #fff, #fff, #ddd, #fff);
+		}
+	}
+}
+
+div#main {
+	@include window($main-gradient);
+	@include clearfix;
+}
+
+div#status {
+	@include window();
+	color: $text-light;
 }
 

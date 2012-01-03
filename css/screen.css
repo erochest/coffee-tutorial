@@ -2,6 +2,11 @@
  * In this file you should write your main styles. (or centralize your imports)
  * Import this file using the following HTML or equivalent:
  * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+/*
+ * TODO:
+ * ToC.
+ * Storing code, bookmarks between pages and sessions.
+ */
 /* line 17, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.5/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -67,7 +72,223 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   display: block;
 }
 
-/* line 8, ../sass/screen.scss */
-#canvas {
-  border: 1px solid red;
+/* Color Schemes and Gradients */
+/* TODO: hover */
+/* line 69, ../sass/screen.scss */
+body {
+  font-family: 'Duru Sans', sans-serif;
+  background-color: white;
+}
+
+/* line 74, ../sass/screen.scss */
+#contentbar {
+  display: inline;
+  float: left;
+  width: 33%;
+  margin-right: 12pt;
+  /* TODO: scroll bar on overflow */
+}
+/* line 80, ../sass/screen.scss */
+#contentbar #content {
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(70%, #eeeeee), color-stop(100%, #dddddd));
+  background-image: -webkit-linear-gradient(#ffffff, #eeeeee 70%, #dddddd);
+  background-image: -moz-linear-gradient(#ffffff, #eeeeee 70%, #dddddd);
+  background-image: -o-linear-gradient(#ffffff, #eeeeee 70%, #dddddd);
+  background-image: -ms-linear-gradient(#ffffff, #eeeeee 70%, #dddddd);
+  background-image: linear-gradient(#ffffff, #eeeeee 70%, #dddddd);
+  height: 512pt;
+}
+
+/* line 86, ../sass/screen.scss */
+#repl {
+  display: inline;
+  float: left;
+  width: 65%;
+}
+
+/* line 91, ../sass/screen.scss */
+#sandbox {
+  background-color: #65a6d1;
+  width: 100%;
+  height: 300pt;
+  margin-bottom: 6pt;
+}
+
+/* line 98, ../sass/screen.scss */
+#replinput {
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(70%, #eeeeee), color-stop(100%, #dddddd));
+  background-image: -webkit-linear-gradient(#ffffff, #eeeeee 70%, #dddddd);
+  background-image: -moz-linear-gradient(#ffffff, #eeeeee 70%, #dddddd);
+  background-image: -o-linear-gradient(#ffffff, #eeeeee 70%, #dddddd);
+  background-image: -ms-linear-gradient(#ffffff, #eeeeee 70%, #dddddd);
+  background-image: linear-gradient(#ffffff, #eeeeee 70%, #dddddd);
+  font-family: 'Inconsolata', sans-serif;
+  font-size: 12pt;
+  width: 100%;
+  height: 200pt;
+}
+
+/* line 106, ../sass/screen.scss */
+button {
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffaa40), color-stop(100%, #ffc173));
+  background-image: -webkit-linear-gradient(#ffaa40, #ffc173);
+  background-image: -moz-linear-gradient(#ffaa40, #ffc173);
+  background-image: -o-linear-gradient(#ffaa40, #ffc173);
+  background-image: -ms-linear-gradient(#ffaa40, #ffc173);
+  background-image: linear-gradient(#ffaa40, #ffc173);
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -o-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  display: inline;
+  float: right;
+  margin-top: 6pt;
+  margin-left: 3pt;
+  margin-right: 3pt;
+  border: 0pt;
+  width: 40pt;
+  height: 18pt;
+}
+
+/* line 110, ../sass/screen.scss */
+button#replgo {
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffc173), color-stop(70%, #ff8e00), color-stop(100%, #bf8030));
+  background-image: -webkit-linear-gradient(#ffc173, #ff8e00 70%, #bf8030);
+  background-image: -moz-linear-gradient(#ffc173, #ff8e00 70%, #bf8030);
+  background-image: -o-linear-gradient(#ffc173, #ff8e00 70%, #bf8030);
+  background-image: -ms-linear-gradient(#ffc173, #ff8e00 70%, #bf8030);
+  background-image: linear-gradient(#ffc173, #ff8e00 70%, #bf8030);
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -o-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  display: inline;
+  float: right;
+  margin-top: 6pt;
+  margin-left: 3pt;
+  margin-right: 3pt;
+  border: 0pt;
+  width: 40pt;
+  height: 18pt;
+}
+
+/* TODO: make the links buttons */
+/* line 115, ../sass/screen.scss */
+div#topmenu ul {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  *zoom: 1;
+  margin: 12pt;
+  padding: 12pt;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #3e97d1), color-stop(100%, #24587a));
+  background-image: -webkit-linear-gradient(#3e97d1, #24587a);
+  background-image: -moz-linear-gradient(#3e97d1, #24587a);
+  background-image: -o-linear-gradient(#3e97d1, #24587a);
+  background-image: -ms-linear-gradient(#3e97d1, #24587a);
+  background-image: linear-gradient(#3e97d1, #24587a);
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -o-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+}
+/* line 60, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.5/frameworks/compass/stylesheets/compass/typography/lists/_horizontal-list.scss */
+div#topmenu ul li {
+  list-style-image: none;
+  list-style-type: none;
+  margin-left: 0px;
+  white-space: nowrap;
+  display: inline;
+  float: left;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+/* line 48, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.5/frameworks/compass/stylesheets/compass/typography/lists/_horizontal-list.scss */
+div#topmenu ul li:first-child, div#topmenu ul li.first {
+  padding-left: 0;
+}
+/* line 49, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.5/frameworks/compass/stylesheets/compass/typography/lists/_horizontal-list.scss */
+div#topmenu ul li:last-child {
+  padding-right: 0;
+}
+/* line 50, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.5/frameworks/compass/stylesheets/compass/typography/lists/_horizontal-list.scss */
+div#topmenu ul li.last {
+  padding-right: 0;
+}
+/* line 119, ../sass/screen.scss */
+div#topmenu ul li {
+  width: 100pt;
+}
+/* line 122, ../sass/screen.scss */
+div#topmenu ul li a {
+  color: inherit;
+  text-decoration: inherit;
+  cursor: inherit;
+  color: #eeeeee;
+}
+/* line 6, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.5/frameworks/compass/stylesheets/compass/typography/links/_unstyled-link.scss */
+div#topmenu ul li a:active, div#topmenu ul li a:focus {
+  outline: none;
+}
+/* line 18, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.5/frameworks/compass/stylesheets/compass/typography/links/_link-colors.scss */
+div#topmenu ul li a:visited {
+  color: #dddddd;
+}
+/* line 21, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.5/frameworks/compass/stylesheets/compass/typography/links/_link-colors.scss */
+div#topmenu ul li a:focus {
+  color: white;
+}
+/* line 24, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.5/frameworks/compass/stylesheets/compass/typography/links/_link-colors.scss */
+div#topmenu ul li a:hover {
+  color: white;
+}
+/* line 27, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.5/frameworks/compass/stylesheets/compass/typography/links/_link-colors.scss */
+div#topmenu ul li a:active {
+  color: white;
+}
+
+/* line 129, ../sass/screen.scss */
+div#main {
+  margin: 12pt;
+  padding: 12pt;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #3e97d1), color-stop(100%, #0a67a3));
+  background-image: -webkit-linear-gradient(#3e97d1, #0a67a3);
+  background-image: -moz-linear-gradient(#3e97d1, #0a67a3);
+  background-image: -o-linear-gradient(#3e97d1, #0a67a3);
+  background-image: -ms-linear-gradient(#3e97d1, #0a67a3);
+  background-image: linear-gradient(#3e97d1, #0a67a3);
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -o-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  overflow: hidden;
+  *zoom: 1;
+}
+
+/* line 134, ../sass/screen.scss */
+div#status {
+  margin: 12pt;
+  padding: 12pt;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #3e97d1), color-stop(100%, #24587a));
+  background-image: -webkit-linear-gradient(#3e97d1, #24587a);
+  background-image: -moz-linear-gradient(#3e97d1, #24587a);
+  background-image: -o-linear-gradient(#3e97d1, #24587a);
+  background-image: -ms-linear-gradient(#3e97d1, #24587a);
+  background-image: linear-gradient(#3e97d1, #24587a);
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -o-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+  color: white;
 }
