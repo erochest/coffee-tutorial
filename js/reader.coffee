@@ -64,6 +64,7 @@ class Reader
     this.wireNavEvents()
 
     this.fullScreen(toc.welcome) if toc.welcome?
+    this.setStatus toc.title
     @n = -1
 
     this

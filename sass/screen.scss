@@ -103,7 +103,7 @@ nav#topmenu {
     ul {
         @include horizontal-list;
         li {
-            width: 100pt;
+            width: 50pt;
 
             a {
                 @include unstyled-link;
@@ -143,7 +143,7 @@ nav#topmenu {
 
         div {
             @include background-image($light-gradient);
-            height: 500pt + $margin;
+            height: 450pt + $margin;
             overflow: scroll;
             padding: 0.5 * $margin;
         }
@@ -158,11 +158,11 @@ nav#topmenu {
 
 #contentbar {
     margin-bottom: $margin;
-    @include alpha;
+    @include omega;
 
     @media only screen and (max-width: 550px) {
+        @include alpha;
         @include columns(12);
-        @include omega;
     }
     @media only screen and (min-width: 550px) {
         @include columns(4);
@@ -170,18 +170,18 @@ nav#topmenu {
 
     #content {
         @include background-image($light-gradient);
-        height: 500pt + $margin;
+        height: 450pt;
         overflow: scroll;
         padding: 0.5 * $margin;
     }
 }
 
 #repl {
-    @include omega;
+    @include alpha;
 
     @media only screen and (max-width: 550px) {
         @include columns(12);
-        @include alpha;
+        @include omega;
     }
     @media only screen and (min-width: 550px) {
         @include columns(8);
@@ -191,7 +191,7 @@ nav#topmenu {
 #sandbox {
     background-color: $a-light1;
     width: 100%;
-    height: 300pt;
+    height: 275pt;
     margin-bottom: 0.5 * $margin;
 }
 
@@ -200,7 +200,7 @@ nav#topmenu {
     font-family: 'Inconsolata', sans-serif;
     font-size: $margin;
     width: 100%;
-    height: 200pt;
+    height: 175pt;
 }
 
 button {

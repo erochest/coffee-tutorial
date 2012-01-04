@@ -82,6 +82,7 @@
       this.wireToCEvents();
       this.wireNavEvents();
       if (toc.welcome != null) this.fullScreen(toc.welcome);
+      this.setStatus(toc.title);
       this.n = -1;
       return this;
     };
