@@ -80,9 +80,8 @@ body {
   float: left;
   width: 33%;
   margin-right: 12pt;
-  /* TODO: scroll bar on overflow */
 }
-/* line 84, ../sass/screen.scss */
+/* line 83, ../sass/screen.scss */
 #contentbar #content {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(80%, #eeeeee), color-stop(100%, #aaaaaa));
   background-image: -webkit-linear-gradient(#ffffff, #eeeeee 80%, #aaaaaa);
@@ -91,6 +90,7 @@ body {
   background-image: -ms-linear-gradient(#ffffff, #eeeeee 80%, #aaaaaa);
   background-image: linear-gradient(#ffffff, #eeeeee 80%, #aaaaaa);
   height: 512pt;
+  overflow: scroll;
 }
 
 /* line 90, ../sass/screen.scss */

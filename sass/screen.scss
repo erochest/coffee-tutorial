@@ -80,10 +80,10 @@ body {
 	width: 33%;
 	margin-right: $margin;
 
-	/* TODO: scroll bar on overflow */
 	#content {
 		@include background-image($light-gradient);
 		height: 500pt + $margin;
+		overflow: scroll;
 	}
 }
 
