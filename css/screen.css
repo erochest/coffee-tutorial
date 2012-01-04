@@ -198,8 +198,7 @@ button#replgo:active {
   background-image: linear-gradient(#bf8030, #ff8e00 70%, #ffc173);
 }
 
-/* TODO: make the links buttons */
-/* line 119, ../sass/screen.scss */
+/* line 118, ../sass/screen.scss */
 div#topmenu ul {
   margin: 0;
   padding: 0;
@@ -244,11 +243,11 @@ div#topmenu ul li:last-child {
 div#topmenu ul li.last {
   padding-right: 0;
 }
-/* line 123, ../sass/screen.scss */
+/* line 122, ../sass/screen.scss */
 div#topmenu ul li {
   width: 100pt;
 }
-/* line 126, ../sass/screen.scss */
+/* line 125, ../sass/screen.scss */
 div#topmenu ul li a {
   color: inherit;
   text-decoration: inherit;
@@ -276,7 +275,7 @@ div#topmenu ul li a:active {
   color: white;
 }
 
-/* line 133, ../sass/screen.scss */
+/* line 132, ../sass/screen.scss */
 div#main {
   margin: 12pt;
   padding: 12pt;
@@ -296,7 +295,7 @@ div#main {
   *zoom: 1;
 }
 
-/* line 138, ../sass/screen.scss */
+/* line 137, ../sass/screen.scss */
 div#status {
   margin: 12pt;
   padding: 12pt;

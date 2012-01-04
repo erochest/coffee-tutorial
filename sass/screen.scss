@@ -115,7 +115,6 @@ button#replgo {
 	@include button($b-gradient, $b-inverse);
 }
 
-/* TODO: make the links buttons */
 div#topmenu ul {
 	@include horizontal-list;
 	@include window();
