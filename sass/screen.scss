@@ -81,16 +81,25 @@ body {
 
 header {
 	@include full;
+	@include alpha;
+	@include window();
+	@include clearfix;
+
+
+	h1 {
+		@include float-left;
+		font-weight: bolder;
+		color: white;
+		margin-right: 2 * $margin;
+	}
 }
 
 footer {
 	@include full;
+	@include alpha;
 }
 
 nav#topmenu {
-	@include window();
-	@include clearfix;
-
 	ul {
 		@include horizontal-list;
 		li {
@@ -123,17 +132,19 @@ nav#topmenu {
 }
 
 #main {
-	@include full
+	@include full;
 }
 
 #contentbar {
 	margin-bottom: $margin;
+	@include alpha;
 
 	@media only screen and (max-width: 550px) {
-		@include full
+		@include full;
+		@include omega;
 	}
 	@media only screen and (min-width: 550px) {
-		@include columns(4)
+		@include columns(4);
 	}
 
 	#content {
@@ -149,10 +160,13 @@ nav#topmenu {
 
 #repl {
 	@media only screen and (max-width: 550px) {
-		@include full
+		@include full;
+		@include alpha;
+		@include omega;
+
 	}
 	@media only screen and (min-width: 550px) {
-		@include columns(8)
+		@include columns(8);
 	}
 }
 
