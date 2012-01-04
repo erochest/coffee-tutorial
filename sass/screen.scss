@@ -3,18 +3,13 @@
  * Import this file using the following HTML or equivalent:
  * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
 
-/*
- * TODO:
- * ToC.
- * Storing code, bookmarks between pages and sessions.
- */
-
-@import "compass/reset";
-@import "compass/typography/lists";
-@import "compass/css3/images";
 @import "compass/css3/border-radius";
-@import "compass/typography/links/unstyled-link";
+@import "compass/css3/images";
+@import "compass/css3/text-shadow";
+@import "compass/reset";
 @import "compass/typography/links/link-colors";
+@import "compass/typography/links/unstyled-link";
+@import "compass/typography/lists";
 @import "compass/utilities/general/clearfix";
 @import "compass/utilities/general/float";
 
@@ -33,9 +28,11 @@ $b-light2: #ffc173;
 
 $gradient: linear-gradient($a-light2, $a-dark2);
 $main-gradient: linear-gradient($a-light2, $a-primary);
-$light-gradient: linear-gradient(white, #eee 70%, #ddd);
+$light-gradient: linear-gradient(white, #eee 80%, #aaa);
 $b-gradient: linear-gradient($b-light2, $b-primary 70%, $b-dark2);
-$button-gradient: linear-gradient($b-light1, $b-light2);
+$b-inverse: linear-gradient($b-dark2, $b-primary 70%, $b-light2);
+$button-gradient: linear-gradient($a-light1, $a-light2);
+$button-inverse: linear-gradient($a-light2, $a-light1);
 
 $text-light: white;
 $text-dark: black;
@@ -53,8 +50,7 @@ $margin: 12pt;
 	@include border-radius();
 }
 
-/* TODO: hover */
-@mixin button($gradient) {
+@mixin button($gradient, $inverse) {
 	@include background-image($gradient);
 	@include border-radius();
 	@include float-right;
@@ -62,8 +58,16 @@ $margin: 12pt;
 	margin-left: 0.25 * $margin;
 	margin-right: 0.25 * $margin;
 	border: 0pt;
-	width: 40pt;
+	width: 45pt;
 	height: 1.5 * $margin;
+	cursor: pointer;
+
+	&:hover {
+		@include single-text-shadow(#eee);
+	}
+	&:active {
+		@include background-image($inverse);
+	}
 }
 
 body {
@@ -104,11 +108,11 @@ body {
 }
 
 button {
-	@include button($button-gradient);
+	@include button($button-gradient, $button-inverse);
 }
 
 button#replgo {
-	@include button($b-gradient);
+	@include button($b-gradient, $b-inverse);
 }
 
 /* TODO: make the links buttons */
