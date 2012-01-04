@@ -27,12 +27,18 @@
 
 <div id="container">
   <header>
-    <div id="topmenu" class="menu">
+    <nav id="topmenu" class="menu">
       <ul>
         <li><a href="#">Something Here</a></li>
         <li><a href="#">Something Else</a></li>
       </ul>
-    </div>
+      <fieldset role='mobile'>
+        <select>
+          <option><a href='#'>Something Here</a></option>
+          <option><a href='#'>Something Else</a></option>
+        </select>
+      </fieldset>
+    </nav>
   </header>
 
   <div id="main" role="main">
@@ -40,10 +46,10 @@
       <div id="content" class="content">
         <p>This space intentionally left blank.</p>
       </div>
-      <div id='navbar'>
+      <nav>
         <button id='btnprev'>Previous</button>
         <button id='btnnext'>Next</button>
-      </div>
+      </nav>
     </div>
     <div id="repl" class="repl">
       <canvas id="sandbox" class="sandbox">

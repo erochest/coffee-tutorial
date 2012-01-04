@@ -21,12 +21,12 @@ end
 namespace :compass do
   desc 'This compiles the Compass (SCSS) files.'
   task :compile do
-    sh %{compass compile . --css-dir=css}
+    sh %{compass compile . --config config.rb}
   end
 
   desc 'This watches the SCSS files.'
   task :watch do
-    sh %{compass watch . --css-dir=css}
+    sh %{compass watch . --config config.rb}
   end
 end
 
