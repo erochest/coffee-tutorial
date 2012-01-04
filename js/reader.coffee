@@ -1,6 +1,5 @@
 
 # TODO:
-# ToC.
 # Storing code, bookmarks between pages and sessions.
 
 # A Reader object connects with the server, loads and displays resources, and
@@ -89,15 +88,13 @@ class Reader
     @main
       .find('#repl').add('#contentbar')
       .fadeOut 'normal', =>
-        @main.find('#fullcontent').fadeIn()
+        @full.fadeIn()
     this
 
   retractContent: ->
     log 'retractContent'
-    @main
-      .find('#fullcontent')
-      .fadeOut 'normal', =>
-        @main.find('#repl').add('#contentbar').fadeIn()
+    @full.fadeOut 'normal', =>
+      @main.find('#repl').add('#contentbar').fadeIn()
     this
 
   fullScreen: (message) ->
@@ -105,6 +102,9 @@ class Reader
     this.expandContent()
     @full.find('div').first().html message
     this
+
+  isFullScreen: ->
+    @full.is(':visible')
 
   toChapter: (chapter) ->
     log 'toChapter', chapter

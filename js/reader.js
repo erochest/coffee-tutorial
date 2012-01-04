@@ -106,7 +106,7 @@
       var _this = this;
       log('expandContent');
       this.main.find('#repl').add('#contentbar').fadeOut('normal', function() {
-        return _this.main.find('#fullcontent').fadeIn();
+        return _this.full.fadeIn();
       });
       return this;
     };
@@ -114,7 +114,7 @@
     Reader.prototype.retractContent = function() {
       var _this = this;
       log('retractContent');
-      this.main.find('#fullcontent').fadeOut('normal', function() {
+      this.full.fadeOut('normal', function() {
         return _this.main.find('#repl').add('#contentbar').fadeIn();
       });
       return this;
@@ -125,6 +125,10 @@
       this.expandContent();
       this.full.find('div').first().html(message);
       return this;
+    };
+
+    Reader.prototype.isFullScreen = function() {
+      return this.full.is(':visible');
     };
 
     Reader.prototype.toChapter = function(chapter) {
