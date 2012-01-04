@@ -41,166 +41,167 @@ $text-dark: black;
 $margin: 12pt;
 
 @mixin window($gradient: $gradient) {
-	@include background-image($gradient);
-	@include border-radius();
-	margin-top: $margin;
-	margin-bottom: $margin;
-	padding: $margin;
+    @include background-image($gradient);
+    @include border-radius();
+    margin-top: $margin;
+    margin-bottom: $margin;
+    padding: $margin;
 }
 
 @mixin button($gradient, $inverse) {
-	@include background-image($gradient);
-	@include border-radius();
-	@include float-right;
-	margin-top: 0.5 * $margin;
-	margin-left: 0.25 * $margin;
-	margin-right: 0.25 * $margin;
-	border: 0pt;
-	width: 45pt;
-	height: 1.5 * $margin;
-	cursor: pointer;
+    @include background-image($gradient);
+    @include border-radius();
+    @include float-right;
+    margin-top: 0.5 * $margin;
+    margin-left: 0.25 * $margin;
+    margin-right: 0.25 * $margin;
+    border: 0pt;
+    width: 45pt;
+    height: 1.5 * $margin;
+    cursor: pointer;
 
-	&:hover {
-		@include single-text-shadow(#eee);
-	}
-	&:active {
-		@include background-image($inverse);
-	}
+    &:hover {
+        @include single-text-shadow(#eee);
+    }
+    &:active {
+        @include background-image($inverse);
+    }
 }
 
 body {
-	font-family: 'Duru Sans', sans-serif;
-	background-color: white;
-	// @include susy-grid-background;
+    font-family: 'Duru Sans', sans-serif;
+    background-color: white;
+    // @include susy-grid-background;
 }
 
 #container {
-	@include container;
+    @include container;
 }
 
 
 header {
-	@include full;
-	@include alpha;
-	@include window();
-	@include clearfix;
+    @include full;
+    @include alpha;
+    @include window();
+    @include clearfix;
 
 
-	h1 {
-		@include float-left;
-		font-weight: bolder;
-		color: white;
-		margin-right: 2 * $margin;
-	}
+    h1 {
+        @include float-left;
+        font-weight: bolder;
+        color: white;
+        margin-right: 2 * $margin;
+    }
 }
 
 footer {
-	@include full;
-	@include alpha;
+    @include full;
+    @include alpha;
 }
 
 nav#topmenu {
-	ul {
-		@include horizontal-list;
-		li {
-			width: 100pt;
+    ul {
+        @include horizontal-list;
+        li {
+            width: 100pt;
 
-			a {
-				@include unstyled-link;
-				@include link-colors(#eee, #fff, #fff, #ddd, #fff);
-			}
-		}
-	}
+            a {
+                @include unstyled-link;
+                @include link-colors(#eee, #fff, #fff, #ddd, #fff);
+            }
+        }
+    }
 
-	fieldset[role='mobile'] {
-		select {
-			@include full;
-		}
-	}
+    fieldset[role='mobile'] {
+        select {
+            @include full;
+        }
+    }
 
-	@media only screen and (max-width: 550px) {
-		ul {
-			display: none;
-		}
-	}
+    @media only screen and (max-width: 550px) {
+        ul {
+            display: none;
+        }
+    }
 
-	@media only screen and (min-width: 550px) {
-		fieldset[role='mobile'] {
-			display: none;
-		}
-	}
+    @media only screen and (min-width: 550px) {
+        fieldset[role='mobile'] {
+            display: none;
+        }
+    }
 }
 
 #main {
-	@include full;
+    @include full;
 }
 
 #contentbar {
-	margin-bottom: $margin;
-	@include alpha;
+    margin-bottom: $margin;
+    @include alpha;
 
-	@media only screen and (max-width: 550px) {
-		@include full;
-		@include omega;
-	}
-	@media only screen and (min-width: 550px) {
-		@include columns(4);
-	}
+    @media only screen and (max-width: 550px) {
+        @include columns(12);
+        @include omega;
+    }
+    @media only screen and (min-width: 550px) {
+        @include columns(4);
+    }
 
-	#content {
-		@include background-image($light-gradient);
-		height: 500pt + $margin;
-		overflow: scroll;
-	}
+    #content {
+        @include background-image($light-gradient);
+        width: 100%;
+        height: 500pt + $margin;
+        overflow: scroll;
+    }
 
-	nav {
-		@include clearfix;
-	}
+    nav {
+        @include clearfix;
+    }
 }
 
 #repl {
-	@media only screen and (max-width: 550px) {
-		@include full;
-		@include alpha;
-		@include omega;
+    @media only screen and (max-width: 550px) {
+        @include columns(12);
+        @include alpha;
+        @include omega;
 
-	}
-	@media only screen and (min-width: 550px) {
-		@include columns(8);
-	}
+    }
+    @media only screen and (min-width: 550px) {
+        @include columns(8);
+    }
 }
 
 #sandbox {
-	background-color: $a-light1;
-	width: 100%;
-	height: 300pt;
-	margin-bottom: 0.5 * $margin;
+    background-color: $a-light1;
+    width: 100%;
+    height: 300pt;
+    margin-bottom: 0.5 * $margin;
 }
 
 #replinput {
-	@include background-image($light-gradient);
-	font-family: 'Inconsolata', sans-serif;
-	font-size: $margin;
-	width: 100%;
-	height: 200pt;
+    @include background-image($light-gradient);
+    font-family: 'Inconsolata', sans-serif;
+    font-size: $margin;
+    width: 100%;
+    height: 200pt;
 }
 
 button {
-	@include button($button-gradient, $button-inverse);
+    @include button($button-gradient, $button-inverse);
 }
 
 button#replgo {
-	@include button($b-gradient, $b-inverse);
+    @include button($b-gradient, $b-inverse);
 }
 
 div#main {
-	@include window($main-gradient);
-	@include clearfix;
-	padding-top: 2 * $margin;
+    @include window($main-gradient);
+    @include clearfix;
+    padding-top: 2 * $margin;
 }
 
 div#status {
-	@include window();
-	color: $text-light;
+    @include window();
+    color: $text-light;
 }
 
