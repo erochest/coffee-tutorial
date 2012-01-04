@@ -400,9 +400,10 @@ div#main {
   padding: 12pt;
   overflow: hidden;
   *zoom: 1;
+  padding-top: 24pt;
 }
 
-/* line 201, ../sass/screen.scss */
+/* line 202, ../sass/screen.scss */
 div#status {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #3e97d1), color-stop(100%, #24587a));
   background-image: -webkit-linear-gradient(#3e97d1, #24587a);

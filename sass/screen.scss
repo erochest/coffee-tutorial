@@ -196,6 +196,7 @@ button#replgo {
 div#main {
 	@include window($main-gradient);
 	@include clearfix;
+	padding-top: 2 * $margin;
 }
 
 div#status {
