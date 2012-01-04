@@ -1,5 +1,44 @@
 (function() {
-  var Reader;
+  var Reader, WindowShade;
+
+  WindowShade = (function() {
+
+    function WindowShade(shades, windows) {
+      this.shades = shades;
+      this.windows = windows;
+    }
+
+    WindowShade.prototype.shade = function() {
+      var _this = this;
+      return this.windows.fadeOut('normal', function() {
+        return _this.shades.fadeIn();
+      });
+    };
+
+    WindowShade.prototype.raise = function() {
+      var _this = this;
+      return this.shades.fadeOut('normal', function() {
+        return _this.windows.fadeIn();
+      });
+    };
+
+    WindowShade.prototype.set = function(shaded) {
+      var isShaded;
+      isShaded = this.isShaded();
+      if (shaded && !isShaded) {
+        return this.shade();
+      } else if (!shaded && isShaded) {
+        return this.raise();
+      }
+    };
+
+    WindowShade.prototype.isShaded = function() {
+      return this.shades.is(':visible');
+    };
+
+    return WindowShade;
+
+  })();
 
   Reader = (function() {
 
@@ -20,7 +59,8 @@
       this.toc = {};
       this.status = $('footer #status');
       this.n = -1;
-      this.full.hide();
+      this.shades = new WindowShade(this.full, this.main.find('#repl').add('#contentbar'));
+      this.shades.shades.hide();
     }
 
     Reader.prototype.loadToC = function(toc) {
@@ -40,6 +80,7 @@
       }).call(this);
       this.populateToC(links);
       this.wireToCEvents();
+      this.wireNavEvents();
       if (toc.welcome != null) this.fullScreen(toc.welcome);
       this.n = -1;
       return this;
@@ -94,6 +135,22 @@
       return this;
     };
 
+    Reader.prototype.wireNavEvents = function() {
+      var _this = this;
+      $('#btnfullprev').click(function(event) {
+        return _this.prevChapter();
+      });
+      $('#btnprev').click(function(event) {
+        return _this.prevChapter();
+      });
+      $('#btnfullnext').click(function(event) {
+        return _this.nextChapter();
+      });
+      return $('#btnnext').click(function(event) {
+        return _this.nextChapter();
+      });
+    };
+
     Reader.prototype.toChapterEvent = function(element, chapter) {
       var _this = this;
       return $(element).click(function(event) {
@@ -102,37 +159,9 @@
       });
     };
 
-    Reader.prototype.fullScreenOn = function() {
-      var _this = this;
-      log('fullScreenOn');
-      this.main.find('#repl').add('#contentbar').fadeOut('normal', function() {
-        return _this.full.fadeIn();
-      });
-      return this;
-    };
-
-    Reader.prototype.fullScreenOff = function() {
-      var _this = this;
-      log('fullScreenOff');
-      this.full.fadeOut('normal', function() {
-        return _this.main.find('#repl').add('#contentbar').fadeIn();
-      });
-      return this;
-    };
-
-    Reader.prototype.setFullScreen = function(full) {
-      var isFull;
-      isFull = this.isFullScreen();
-      if (full && !isFull) {
-        return this.fullScreenOn();
-      } else if (!full && isFull) {
-        return this.fullScreenOff();
-      }
-    };
-
     Reader.prototype.fullScreen = function(message) {
       log('fullScreen', message);
-      this.fullScreenOn();
+      this.shades.shade();
       this.full.find('div').first().html(message);
       return this;
     };
@@ -142,11 +171,30 @@
     };
 
     Reader.prototype.toChapter = function(chapter) {
+      var content;
       log('toChapter', chapter);
       this.n = chapter.n;
       this.setStatus("" + chapter.title);
-      this.setFullScreen(chapter.full);
+      this.shades.set(chapter.full);
+      content = chapter.full ? this.full.find('div').first() : this.content;
+      if (chapter.content != null) content.html(chapter.content);
       return this;
+    };
+
+    Reader.prototype.toChapterN = function(n) {
+      return this.toChapter(this.toc.chapters[n]);
+    };
+
+    Reader.prototype.prevChapter = function() {
+      log('prevChapter');
+      if (!(this.n <= 0)) return this.toChapterN(this.n - 1);
+    };
+
+    Reader.prototype.nextChapter = function() {
+      log('nextChapter');
+      if ((this.n + 1) < this.toc.chapters.length) {
+        return this.toChapterN(this.n + 1);
+      }
     };
 
     Reader.prototype.setStatus = function(message) {

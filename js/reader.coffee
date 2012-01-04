@@ -2,6 +2,30 @@
 # TODO:
 # Storing code, bookmarks between pages and sessions.
 
+# This manages the shade window. It takes two parameters: a jQuery selection of
+# the covering elements (shades) and another selection of the elements that get
+# covered (windows).
+
+class WindowShade
+  constructor: (@shades, @windows) ->
+
+  shade: ->
+    @windows.fadeOut 'normal', => @shades.fadeIn()
+
+  raise: ->
+    @shades.fadeOut 'normal', => @windows.fadeIn()
+
+  set: (shaded) ->
+    isShaded = this.isShaded()
+    if shaded and not isShaded
+      this.shade()
+    else if not shaded and isShaded
+      this.raise()
+
+  isShaded: ->
+    @shades.is(':visible')
+
+
 # A Reader object connects with the server, loads and displays resources, and
 # controls user interactions.
 class Reader
@@ -22,7 +46,11 @@ class Reader
     @status     = $ 'footer #status'
     @n          = -1
 
-    @full.hide()
+    @shades = new WindowShade(
+      @full,
+      @main.find('#repl').add('#contentbar')
+    )
+    @shades.shades.hide()
 
   # This makes an AJAX request to load @tocUrl and displays it.
   loadToC: (toc) ->
@@ -33,6 +61,7 @@ class Reader
     links = (this.chapterLink(chapter) for chapter in toc.chapters)
     this.populateToC(links)
     this.wireToCEvents()
+    this.wireNavEvents()
 
     this.fullScreen(toc.welcome) if toc.welcome?
     @n = -1
@@ -76,36 +105,25 @@ class Reader
 
     this
 
+  wireNavEvents: ->
+    $('#btnfullprev').click (event) =>
+      this.prevChapter()
+    $('#btnprev').click (event) =>
+      this.prevChapter()
+    $('#btnfullnext').click (event) =>
+      this.nextChapter()
+    $('#btnnext').click (event) =>
+      this.nextChapter()
+
   # This actually takes care of wiring up the event.
   toChapterEvent: (element, chapter) ->
     $(element).click (event) =>
       this.toChapter(chapter)
       event.preventDefault()
 
-  fullScreenOn: ->
-    log 'fullScreenOn'
-    @main
-      .find('#repl').add('#contentbar')
-      .fadeOut 'normal', =>
-        @full.fadeIn()
-    this
-
-  fullScreenOff: ->
-    log 'fullScreenOff'
-    @full.fadeOut 'normal', =>
-      @main.find('#repl').add('#contentbar').fadeIn()
-    this
-
-  setFullScreen: (full) ->
-    isFull = this.isFullScreen()
-    if full and not isFull
-      this.fullScreenOn()
-    else if not full and isFull
-      this.fullScreenOff()
-
   fullScreen: (message) ->
     log 'fullScreen', message
-    this.fullScreenOn()
+    @shades.shade()
     @full.find('div').first().html message
     this
 
@@ -117,9 +135,22 @@ class Reader
     @n = chapter.n
     this.setStatus "#{chapter.title}"
 
-    this.setFullScreen(chapter.full)
+    @shades.set(chapter.full)
+    content = if chapter.full then @full.find('div').first() else @content
+    content.html(chapter.content) if chapter.content?
 
     this
+
+  toChapterN: (n) ->
+    this.toChapter @toc.chapters[n]
+
+  prevChapter: ->
+    log 'prevChapter'
+    this.toChapterN(@n-1) unless @n <= 0
+
+  nextChapter: ->
+    log 'nextChapter'
+    this.toChapterN(@n+1) if (@n + 1) < @toc.chapters.length
 
   setStatus: (message) ->
     log 'setStatus', message
