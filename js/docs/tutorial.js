@@ -7,7 +7,8 @@
       {
         n: 0,
         title: "About",
-        link: "docs/about.json"
+        full: true,
+        content: "<h1>About Coffee Script</h1>"
       }
     ],
     welcome: "<h1>Coffee Script Tutorial</h1>"

@@ -5,7 +5,10 @@ window.tutorial =
     {
       n: 0
       title: "About"
-      link: "docs/about.json"
+      full: true
+      content: """
+          <h1>About Coffee Script</h1>
+        """
     }
     # { title: "Data", link: "docs/data.json" }
     # { title: "Syntax", link: "docs/syntax.json" }
