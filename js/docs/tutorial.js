@@ -9,6 +9,10 @@
         title: "About",
         full: true,
         content: "<h1>About Coffee Script</h1>"
+      }, {
+        n: 1,
+        title: "Data",
+        content: "<h1>Coffee Data</h1>"
       }
     ],
     welcome: "<h1>Coffee Script Tutorial</h1>"

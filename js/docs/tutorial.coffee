@@ -10,7 +10,13 @@ window.tutorial =
           <h1>About Coffee Script</h1>
         """
     }
-    # { title: "Data", link: "docs/data.json" }
+    {
+      n: 1
+      title: "Data"
+      content: """
+        <h1>Coffee Data</h1>
+        """
+    }
     # { title: "Syntax", link: "docs/syntax.json" }
     # { title: "Function", link: "docs/function.json" }
     # { title: "Class", link: "docs/class.json" }
