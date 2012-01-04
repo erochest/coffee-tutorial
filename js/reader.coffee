@@ -82,24 +82,30 @@ class Reader
       this.toChapter(chapter)
       event.preventDefault()
 
-  # These are repeated from the Compass/Susy-generated CSS. Yech. Very not DRY.
-  expandContent: ->
-    log 'expandContent'
+  fullScreenOn: ->
+    log 'fullScreenOn'
     @main
       .find('#repl').add('#contentbar')
       .fadeOut 'normal', =>
         @full.fadeIn()
     this
 
-  retractContent: ->
-    log 'retractContent'
+  fullScreenOff: ->
+    log 'fullScreenOff'
     @full.fadeOut 'normal', =>
       @main.find('#repl').add('#contentbar').fadeIn()
     this
 
+  setFullScreen: (full) ->
+    isFull = this.isFullScreen()
+    if full and not isFull
+      this.fullScreenOn()
+    else if not full and isFull
+      this.fullScreenOff()
+
   fullScreen: (message) ->
     log 'fullScreen', message
-    this.expandContent()
+    this.fullScreenOn()
     @full.find('div').first().html message
     this
 
@@ -109,7 +115,10 @@ class Reader
   toChapter: (chapter) ->
     log 'toChapter', chapter
     @n = chapter.n
-    this.setStatus "#{chapter.title} &mdash; #{@n}"
+    this.setStatus "#{chapter.title}"
+
+    this.setFullScreen(chapter.full)
+
     this
 
   setStatus: (message) ->

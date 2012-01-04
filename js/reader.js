@@ -102,27 +102,37 @@
       });
     };
 
-    Reader.prototype.expandContent = function() {
+    Reader.prototype.fullScreenOn = function() {
       var _this = this;
-      log('expandContent');
+      log('fullScreenOn');
       this.main.find('#repl').add('#contentbar').fadeOut('normal', function() {
         return _this.full.fadeIn();
       });
       return this;
     };
 
-    Reader.prototype.retractContent = function() {
+    Reader.prototype.fullScreenOff = function() {
       var _this = this;
-      log('retractContent');
+      log('fullScreenOff');
       this.full.fadeOut('normal', function() {
         return _this.main.find('#repl').add('#contentbar').fadeIn();
       });
       return this;
     };
 
+    Reader.prototype.setFullScreen = function(full) {
+      var isFull;
+      isFull = this.isFullScreen();
+      if (full && !isFull) {
+        return this.fullScreenOn();
+      } else if (!full && isFull) {
+        return this.fullScreenOff();
+      }
+    };
+
     Reader.prototype.fullScreen = function(message) {
       log('fullScreen', message);
-      this.expandContent();
+      this.fullScreenOn();
       this.full.find('div').first().html(message);
       return this;
     };
@@ -134,7 +144,8 @@
     Reader.prototype.toChapter = function(chapter) {
       log('toChapter', chapter);
       this.n = chapter.n;
-      this.setStatus("" + chapter.title + " &mdash; " + this.n);
+      this.setStatus("" + chapter.title);
+      this.setFullScreen(chapter.full);
       return this;
     };
 
