@@ -30,19 +30,22 @@
     <h1>CoffeeScript Tutorial</h1>
     <nav id="topmenu" class="menu">
       <ul>
-        <li><a href="#">Something Here</a></li>
-        <li><a href="#">Something Else</a></li>
       </ul>
       <fieldset role='mobile'>
         <select>
-          <option><a href='#'>Something Here</a></option>
-          <option><a href='#'>Something Else</a></option>
         </select>
       </fieldset>
     </nav>
   </header>
 
   <div id="main" role="main">
+    <div id='fullcontent'>
+      <div></div>
+      <nav>
+        <button id='btnfullprev'>Previous</button>
+        <button id='btnfullnext'>Next</button>
+      </nav>
+    </div>
     <div id='contentbar'>
       <div id="content" class="content">
         <p>This space intentionally left blank.</p>
@@ -75,6 +78,7 @@
 <!-- scripts concatenated and minified via ant build script-->
 <script src="js/plugins.js"></script>
 <script src="js/reader.js"></script>
+<script src="js/docs/tutorial.js"></script>
 <script src="js/script.js"></script>
 <!-- end scripts-->
 

@@ -108,6 +108,7 @@ nav#topmenu {
             a {
                 @include unstyled-link;
                 @include link-colors(#eee, #fff, #fff, #ddd, #fff);
+                cursor: pointer;
             }
         }
     }
@@ -133,6 +134,26 @@ nav#topmenu {
 
 #main {
     @include full;
+
+    #fullcontent {
+        @include columns(12);
+        @include omega;
+
+        background-color: transparent;
+
+        div {
+            @include background-image($light-gradient);
+            height: 500pt + $margin;
+            overflow: scroll;
+            padding: 0.5 * $margin;
+        }
+    }
+
+    nav {
+        @include clearfix;
+        background-color: transparent;
+    }
+
 }
 
 #contentbar {
@@ -149,22 +170,18 @@ nav#topmenu {
 
     #content {
         @include background-image($light-gradient);
-        width: 100%;
         height: 500pt + $margin;
         overflow: scroll;
-    }
-
-    nav {
-        @include clearfix;
+        padding: 0.5 * $margin;
     }
 }
 
 #repl {
+    @include omega;
+
     @media only screen and (max-width: 550px) {
         @include columns(12);
         @include alpha;
-        @include omega;
-
     }
     @media only screen and (min-width: 550px) {
         @include columns(8);
@@ -203,5 +220,10 @@ div#main {
 div#status {
     @include window();
     color: $text-light;
+}
+
+h1 {
+    font-size: bigger;
+    font-weight: bold;
 }
 
