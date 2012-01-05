@@ -11,6 +11,9 @@
       }, {
         title: "Data",
         content: "<h1>Coffee Data</h1>"
+      }, {
+        title: "Syntax",
+        content: "<h1>Coffee Syntax</h1>"
       }
     ],
     welcome: "<h1>Coffee Script Tutorial</h1>"
