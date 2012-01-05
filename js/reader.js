@@ -56,17 +56,23 @@
 
   Navigator = (function() {
 
+    Navigator.prototype.bookmarkKey = 'reader.nav.bookmark';
+
+    Navigator.prototype.workKey = 'reader.nav.work.';
+
     function Navigator(book) {
       this.n = -1;
       this.load(book);
     }
 
+    Navigator.prototype.clear = function() {
+      return localStorage.clear();
+    };
+
     Navigator.prototype.load = function(book) {
-      var key;
       if (this._loadbook(book)) {
-        key = "reader.nav.bookmark";
         this.book = book;
-        this.n = localStorage[key] != null ? parseInt(localStorage[key]) : -1;
+        this.n = this.hasBookmark() ? this.getBookmark() : -1;
       }
       return this;
     };
@@ -92,27 +98,40 @@
       if (this._closechapter()) {
         this.n = n;
         this._openchapter();
+        this.bookmark();
       }
       return this;
     };
 
     Navigator.prototype.saveWork = function(work) {
       var key;
-      key = "reader.page." + this.n;
+      key = "" + this.workKey + this.n;
       localStorage[key] = work;
       return this;
     };
 
     Navigator.prototype.hasWork = function() {
       var key;
-      key = "reader.page." + this.n;
+      key = "" + this.workKey + this.n;
       return localStorage[key] != null;
     };
 
     Navigator.prototype.getWork = function() {
       var key;
-      key = "reader.page." + this.n;
+      key = "" + this.workKey + this.n;
       return localStorage[key];
+    };
+
+    Navigator.prototype.bookmark = function() {
+      return localStorage[this.bookmarkKey] = this.n;
+    };
+
+    Navigator.prototype.hasBookmark = function() {
+      return localStorage[this.bookmarkKey] != null;
+    };
+
+    Navigator.prototype.getBookmark = function() {
+      return parseInt(localStorage[this.bookmarkKey]);
     };
 
     Navigator.prototype._bookevent = function(name, book) {

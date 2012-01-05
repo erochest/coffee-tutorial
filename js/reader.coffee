@@ -55,16 +55,22 @@ class WindowShade
 # This is the `Navigator` object. It is the model for the reader.
 
 class Navigator
+  bookmarkKey: 'reader.nav.bookmark'
+  workKey: 'reader.nav.work.'
+
   constructor: (book) ->
     @n = -1
     this.load(book)
 
+  # This just defers to localStorage.
+  clear: ->
+    localStorage.clear()
+
   # Triggers `reader.nav.loadbook`, which can cancel loading the book.
   load: (book) ->
     if this._loadbook(book)
-      key = "reader.nav.bookmark"
       @book = book
-      @n = if localStorage[key]? then parseInt(localStorage[key]) else -1
+      @n = if this.hasBookmark() then this.getBookmark() else -1
     this
 
   getCurrentChapter: ->
@@ -94,6 +100,7 @@ class Navigator
     if this._closechapter()
       @n = n
       this._openchapter()
+      this.bookmark()
 
     this
 
@@ -101,17 +108,26 @@ class Navigator
   # that provides an explicit interface to Local Storage.
 
   saveWork: (work) ->
-    key = "reader.page.#{ @n }"
+    key = "#{ this.workKey }#{ @n }"
     localStorage[key] = work
     this
 
   hasWork: ->
-    key = "reader.page.#{ @n }"
+    key = "#{ this.workKey }#{ @n }"
     localStorage[key]?
 
   getWork: ->
-    key = "reader.page.#{ @n }"
+    key = "#{ this.workKey }#{ @n }"
     localStorage[key]
+
+  bookmark: ->
+    localStorage[this.bookmarkKey] = @n
+
+  hasBookmark: ->
+    localStorage[this.bookmarkKey]?
+
+  getBookmark: ->
+    parseInt(localStorage[this.bookmarkKey])
 
   # These methods handle triggering the `Navigator` events. The first two are
   # abstract methods for triggering classes of events. The last three use the
