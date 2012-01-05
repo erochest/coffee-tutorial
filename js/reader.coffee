@@ -3,8 +3,8 @@
 #
 # Here's how it breaks down:
 #
-# The **model** is `Navigator`. This handles moving around in an abstract sense
-# and saving data and positions.
+# The **models** are `Navigator` and `Repl`. This handles moving around in an
+# abstract sense and saving data and positions.
 #
 # The **views** are `WindowShades` and `Viewer`. This handes displaying things
 # and hiding them.
@@ -58,9 +58,13 @@ class Navigator
   bookmarkKey: 'reader.nav.bookmark'
   workKey: 'reader.nav.work.'
 
+  onLoadBookName: 'reader.nav.loadbook'
+  onOpenChapterName: 'reader.nav.openchapter'
+  onCloseChapterName: 'reader.nav.closechapter'
+
   constructor: (book) ->
     @n = -1
-    this.load(book)
+    this.load(book) if book?
 
   # This just defers to localStorage.
   clear: ->
@@ -69,6 +73,7 @@ class Navigator
   # Triggers `reader.nav.loadbook`, which can cancel loading the book.
   load: (book) ->
     if this._loadbook(book)
+      chapter.n = i for chapter, i in book.chapters
       @book = book
       @n = if this.hasBookmark() then this.getBookmark() else -1
     this
@@ -103,6 +108,12 @@ class Navigator
       this.bookmark()
 
     this
+
+  # This is the handler for the `reader.viewer.tochapter` event. It just calls
+  # `.to()`.
+  onToChapter: (event) ->
+    this.to event.n
+    event.preventDefault()
 
   # Most of the data storage is handled implicitly. These are the only methods
   # that provides an explicit interface to Local Storage.
@@ -154,178 +165,194 @@ class Navigator
     not event.isDefaultPrevented()
 
   _loadbook: (book) ->
-    this._bookevent 'reader.nav.loadbook', book
+    this._bookevent this.onLoadBookName, book
 
   _openchapter: ->
-    this._chapterevent 'reader.nav.openchapter'
+    this._chapterevent this.onOpenChapterName
 
   _closechapter: ->
-    this._chapterevent 'reader.nav.closechapter'
+    this._chapterevent this.onCloseChapterName
 
   # TODO: section navigation
 
+# This handles running the CoffeeScript. Having a whole model class for this is
+# really pretty heavy, but I wanted to keep things tidier.
 
-# This handles interacting the Local Storage. This both listens to navigation
-# events and pulls information from the viewer to get 
+class Repl
+  constructor: ->
+
+  onEvaluate: (event) ->
+    this.evaluate event.code
+
+  evaluate: (code) ->
+    try
+      js = CoffeeScript.compile code
+    catch error
+      errorStatus error
+      return
+    try
+      eval js
+    catch error
+      errorStatus error
+      return
+
+# This is a view function. It's meant to be called by the model and controller.
+# It triggers the `reader.viewer.status` event, which the `Viewer` listens
+# to and updates the status bar.
+
+onStatusName = 'reader.viewer.status'
+
+status = (source, msg) ->
+  event = new jQuery.Event onStatusName
+  event.source = source
+  event.status = msg
+  $('body').trigger event
+  not event.isDefaultPrevented()
+
+errorStatus = (source, error) ->
+  msg = if error.message? then error.message else error
+  status source, msg
+
+# This handles the view. It has listeners for the `Navigator's` events, and it
+# handles updating the view based on that.
+
+class Viewer
+  onToChapterName: 'reader.viewer.tochapter'
+  onEvaluateName: 'reader.viewer.evaluate'
+
+  constructor: ->
+    @shades = new WindowShade $('#fullcontent'), $('#repl').add('#contentpane')
+    @shades.shades.hide()
+
+  # When loading a new book, set the title, links, etc.
+  onLoadBook: (event) ->
+    this.setTitle(event.book.title)
+    links = this.makeChapterLink(chapter) for chapter in event.book.chapters
+    this.makeToc(links)
+    this.fullScreen(event.book.welcome) if event.book.welcome?
+
+  setTitle: (title) ->
+    $('header h1').html title
+    this.setStatus title
+
+  # This makes a link to a chapter title and returns the chapter itself also.
+  makeChapterLink: (chapter) ->
+    ["<a>#{ chapter.title }</a>", chapter]
+
+  makeToc: (links) ->
+    ul     = $ 'nav#topmenu ul'
+    select = $ 'nav#topmenu select'
+
+    ul.html(
+      ( "<li>#{ a }</li>" for [a, c] in links ).join('')
+    )
+
+    options = for [a, c], i in links
+                "<option value='#{ i }'>#{ c.title }</option>"
+    options.unshift "<option><em>Select</em></option>"
+    select.html options.join('')
+
+    this.wireTocEvents links
+
+  wireTocEvents: (links) ->
+    chapters = c for [a, c] in links
+    ul       = $ 'nav#topmenu ul'
+    select   = $ 'nav#topmenu select'
+
+    ul.find('li a').map (i, el) =>
+      this._tochapter i
+
+    select.change (event) =>
+      i = parseInt select.val()
+      this._tochapter i unless isNaN i
+      event.preventDefault()
+
+  _tochapter: (n) ->
+    event = new jQuery.Event this.onToChapterName
+    event.viewer = this
+    event.n = n
+    $('body').trigger event
+    not event.isDefaultPrevented()
+
+  _evaluate: (cs) ->
+    event = new jQuery.Event this.onEvaluateName
+    event.viewer = this
+    event.code = cs
+    $('body').trigger event
+    not event.isDefaultPrevented()
+
+  fullScreen: (message) ->
+    @shades.shade ->
+      $('#fullcontent div').html message
+
+  # When closing a chapter, save the work, if it's visible.
+  onCloseChapter: (event) ->
+    if not event.navigator.getCurrentChapter().full
+      event.navigator.saveWork $('#replinput').val()
+    @shades.hideAll()
+
+  # When opening a new chapter, populate the work, if it's visible.
+  onOpenChapter: (event) ->
+    chapter = event.navigator.getCurrentChapter()
+
+    if not chapter.full and event.navigator.hasWork()
+      $('#replinput').val event.navigator.getWork()
+
+    this.setStatus chapter.title
+
+    divId = if chapter.full then '#fullcontent div' else '#contentpane div'
+    @shades.set chapter.full, =>
+      $(divId).html chapter.content if chapter.content?
+
+  # When the status bar needs to be updated.
+  onStatus: (event) ->
+    this.setStatus event.status
+
+  setStatus: (message) ->
+    $('#status').html message
 
 
 # A Reader object connects with the server, loads and displays resources, and
 # controls user interactions.
 class Reader
-  mobileWidth: 550
-
   constructor: () ->
-    log 'Reader'
-    nav          = $ 'nav#topmenu'
-    @title       = $ 'header h1'
-    @navList     = nav.find 'ul'
-    @navSelect   = nav.find 'select'
-    @main        = $ '#main'
-    @contentPane = @main.find '#contentpane'
-    @content     = @contentPane.find 'div'
-    @fullPane    = @main.find '#fullcontent'
-    @full        = @fullPane.find 'div'
-    @repl        = $ '#repl'
-    @replInput   = @repl.find '#replinput'
-    @toc         = {}
-    @status      = $ 'footer #status'
-    @n           = -1
+    @nav    = new Navigator()
+    @repl   = new Repl()
+    @viewer = new Viewer()
 
-    @shades = new WindowShade(
-      @fullPane,
-      @main.find('#repl').add('#contentpane')
-    )
-    @shades.shades.hide()
+    this.wireEvents()
 
   # This makes an AJAX request to load @tocUrl and displays it.
-  loadToC: (toc) ->
-    log 'loadToC', toc
-    @toc = toc
-    @title.html(toc.title)
+  loadBook: (book) ->
+    @nav.load book
 
-    chapter.n = i for chapter, i in toc.chapters
-
-    links = (this.chapterLink(chapter) for chapter in toc.chapters)
-    this.populateToC(links)
-    this.wireToCEvents()
-    this.wireNavEvents()
-    this.wireGoEvent()
-
-    this.fullScreen(toc.welcome) if toc.welcome?
-    this.setStatus toc.title
-    @n = -1
-
-    this
-
-  # This creates the chapter link and returns the chapter also.
-  chapterLink: (chapter) ->
-    ["<a>#{ chapter.title }</a>", chapter]
-
-  # This clears the links and re-populates them from the 
-  populateToC: (links) ->
-    log 'populateToC', links
-    @navList.html(
-      ( "<li>#{ a[0] }</li>" for a in links ).join('')
-    )
-
-    options = for a, i in links
-                "<option value='#{ i }'>#{ a[1].title }</option>" 
-    options.unshift "<option><em>Select</em></option>"
-    @navSelect.html options.join('')
-
-    this
-
-  # This walks through the ToC links that were created, wires them up, and
-  # removes their default handling.
-  wireToCEvents: () ->
-    log 'wireToCEvents'
-    chapters = @toc.chapters
-
-    @navList.find('li a').map (i, el) =>
-      this.toChapterEvent(el, chapters[i])
-
-    @navSelect.change (event) =>
-      val = @navSelect.val()
-      i = parseInt val
-      chapter = chapters[i]
-      if chapter?
-        this.toChapter chapter
-      event.preventDefault()
-
-    this
-
-  wireNavEvents: ->
-    $('#btnfullprev').click (event) =>
-      this.prevChapter()
+  wireEvents: ->
+    # Buttons.
     $('#btnprev').click (event) =>
-      this.prevChapter()
-    $('#btnfullnext').click (event) =>
-      this.nextChapter()
+      @nav.previous()
     $('#btnnext').click (event) =>
-      this.nextChapter()
-
-  # This wires up the CoffeeScript compiler.
-  wireGoEvent: ->
+      @nav.next()
     $('#replgo').click (event) =>
-      this.execCS @replInput.val()
+      @viewer._evaluate $('#replinput').val()
 
-  # This actually takes care of wiring up the event.
-  toChapterEvent: (element, chapter) ->
-    $(element).click (event) =>
-      this.toChapter(chapter)
-      event.preventDefault()
+    # Viewer-generated events.
+    onToChapterName = Viewer.onToChapterName
+    onEvaluateName  = Viewer.onEvaluateName
+    $('body').bind {
+      onToChapterName : (event) => @nav.onToChapter event
+      onEvaluateName  : (event) => @repl.onEvaluate event
+      onStatusName    : (event) => @viewer.onStatus event
+    }
 
-  fullScreen: (message) ->
-    log 'fullScreen', message
-    @shades.shade =>
-      @full.html message
-    this
-
-  isFullScreen: ->
-    @fullPane.is(':visible')
-
-  toChapter: (chapter) ->
-    log 'toChapter', chapter
-    @n = chapter.n
-    this.setStatus "#{chapter.title}"
-
-    content = if chapter.full then @full else @content
-    @shades.set chapter.full, =>
-      content.html(chapter.content) if chapter.content?
-
-    this
-
-  toChapterN: (n) ->
-    this.toChapter @toc.chapters[n]
-
-  prevChapter: ->
-    log 'prevChapter'
-    this.toChapterN(@n-1) unless @n <= 0
-
-  nextChapter: ->
-    log 'nextChapter'
-    this.toChapterN(@n+1) if (@n + 1) < @toc.chapters.length
-
-  setStatus: (message) ->
-    log 'setStatus', message
-    @status.html(message)
-    this
-
-  setErrorStatus: (error) ->
-    msg = if error.message? then error.message else error
-    this.setStatus msg
-
-  execCS: (source) ->
-    try
-      js = CoffeeScript.compile source
-    catch error
-      this.setErrorStatus error
-      return
-    try
-      eval(js)
-    catch error
-      this.setErrorStatus error
-      return
+    # Navigator-generated event.
+    onLoadBookName    = Navigator.onLoadBookName
+    onOpenChapterName = Navigator.onOpenChapterName
+    onCloseChapter    = Navigator.onCloseChapter
+    $('body').bind {
+      onLoadBookName    : (event) => @viewer.onLoadBook event
+      onOpenChapterName : (event) => @viewer.onOpenChapter event
+      onCloseChapter    : (event) => @viewer.onCloseChapter event
+    }
 
 window.Reader = Reader
 

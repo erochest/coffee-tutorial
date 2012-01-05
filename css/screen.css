@@ -475,6 +475,11 @@ h1 {
 }
 
 /* line 241, ../sass/screen.scss */
+em {
+  font-style: italic;
+}
+
+/* line 245, ../sass/screen.scss */
 strong {
   font-weight: bolder;
 }

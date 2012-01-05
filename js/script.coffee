@@ -1,7 +1,7 @@
 
 $ ->
   reader = new Reader()
-  reader.loadToC(window.tutorial)
+  reader.loadBook window.tutorial
   window.reader = reader
 
 

@@ -3,7 +3,7 @@
   $(function() {
     var reader;
     reader = new Reader();
-    reader.loadToC(window.tutorial);
+    reader.loadBook(window.tutorial);
     return window.reader = reader;
   });
 
