@@ -33,20 +33,24 @@ class Reader
 
   constructor: () ->
     log 'Reader'
-    nav = $ 'nav#topmenu'
-    @title      = $ 'header h1'
-    @navList    = nav.find 'ul'
-    @navSelect  = nav.find 'select'
-    @main       = $ '#main'
-    @contentBar = $ '#contentbar'
-    @content    = @contentBar.find '#content'
-    @full       = @main.find '#fullcontent'
-    @repl       = $ '#repl'
-    @toc        = {}
-    @status     = $ 'footer #status'
-    @n          = -1
+    nav          = $ 'nav#topmenu'
+    @title       = $ 'header h1'
+    @navList     = nav.find 'ul'
+    @navSelect   = nav.find 'select'
+    @main        = $ '#main'
+    @contentPane = @main.find '#contentpane'
+    @content     = @contentPane.find 'div'
+    @fullPane    = @main.find '#fullcontent'
+    @full        = @fullPane.find 'div'
+    @repl        = $ '#repl'
+    @toc         = {}
+    @status      = $ 'footer #status'
+    @n           = -1
 
-    @shades = new WindowShade @full, @main.find('#repl').add('#contentbar')
+    @shades = new WindowShade(
+      @fullPane,
+      @main.find('#repl').add('#contentpane')
+    )
     @shades.shades.hide()
 
   # This makes an AJAX request to load @tocUrl and displays it.
@@ -124,11 +128,11 @@ class Reader
   fullScreen: (message) ->
     log 'fullScreen', message
     @shades.shade()
-    @full.find('div').first().html message
+    @full.html message
     this
 
   isFullScreen: ->
-    @full.is(':visible')
+    @fullPane.is(':visible')
 
   toChapter: (chapter) ->
     log 'toChapter', chapter
@@ -136,7 +140,7 @@ class Reader
     this.setStatus "#{chapter.title}"
 
     @shades.set(chapter.full)
-    content = if chapter.full then @full.find('div').first() else @content
+    content = if chapter.full then @full else @content
     content.html(chapter.content) if chapter.content?
 
     this

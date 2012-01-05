@@ -52,14 +52,15 @@
       this.navList = nav.find('ul');
       this.navSelect = nav.find('select');
       this.main = $('#main');
-      this.contentBar = $('#contentbar');
-      this.content = this.contentBar.find('#content');
-      this.full = this.main.find('#fullcontent');
+      this.contentPane = this.main.find('#contentpane');
+      this.content = this.contentPane.find('div');
+      this.fullPane = this.main.find('#fullcontent');
+      this.full = this.fullPane.find('div');
       this.repl = $('#repl');
       this.toc = {};
       this.status = $('footer #status');
       this.n = -1;
-      this.shades = new WindowShade(this.full, this.main.find('#repl').add('#contentbar'));
+      this.shades = new WindowShade(this.fullPane, this.main.find('#repl').add('#contentpane'));
       this.shades.shades.hide();
     }
 
@@ -168,12 +169,12 @@
     Reader.prototype.fullScreen = function(message) {
       log('fullScreen', message);
       this.shades.shade();
-      this.full.find('div').first().html(message);
+      this.full.html(message);
       return this;
     };
 
     Reader.prototype.isFullScreen = function() {
-      return this.full.is(':visible');
+      return this.fullPane.is(':visible');
     };
 
     Reader.prototype.toChapter = function(chapter) {
@@ -182,7 +183,7 @@
       this.n = chapter.n;
       this.setStatus("" + chapter.title);
       this.shades.set(chapter.full);
-      content = chapter.full ? this.full.find('div').first() : this.content;
+      content = chapter.full ? this.full : this.content;
       if (chapter.content != null) content.html(chapter.content);
       return this;
     };
