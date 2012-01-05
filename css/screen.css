@@ -240,8 +240,9 @@ nav#topmenu fieldset[role='mobile'] select {
   margin-right: 1.639%;
   #margin-left: -1em;
   background-color: transparent;
+  margin-bottom: 12pt;
 }
-/* line 155, ../sass/screen.scss */
+/* line 156, ../sass/screen.scss */
 #fullcontent div {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(80%, #eeeeee), color-stop(100%, #aaaaaa));
   background-image: -webkit-linear-gradient(#ffffff, #eeeeee 80%, #aaaaaa);
@@ -254,7 +255,7 @@ nav#topmenu fieldset[role='mobile'] select {
   padding: 6pt;
 }
 
-/* line 163, ../sass/screen.scss */
+/* line 164, ../sass/screen.scss */
 #contentpane {
   margin-bottom: 12pt;
   display: inline;
@@ -263,7 +264,7 @@ nav#topmenu fieldset[role='mobile'] select {
   #margin-left: -1em;
 }
 @media only screen and (max-width: 550px) {
-  /* line 163, ../sass/screen.scss */
+  /* line 164, ../sass/screen.scss */
   #contentpane {
     margin-left: 1.639%;
     display: inline;
@@ -273,7 +274,7 @@ nav#topmenu fieldset[role='mobile'] select {
   }
 }
 @media only screen and (min-width: 550px) {
-  /* line 163, ../sass/screen.scss */
+  /* line 164, ../sass/screen.scss */
   #contentpane {
     display: inline;
     float: left;
@@ -281,7 +282,7 @@ nav#topmenu fieldset[role='mobile'] select {
     margin-right: 1.639%;
   }
 }
-/* line 175, ../sass/screen.scss */
+/* line 176, ../sass/screen.scss */
 #contentpane div {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(80%, #eeeeee), color-stop(100%, #aaaaaa));
   background-image: -webkit-linear-gradient(#ffffff, #eeeeee 80%, #aaaaaa);
@@ -294,12 +295,12 @@ nav#topmenu fieldset[role='mobile'] select {
   padding: 6pt;
 }
 
-/* line 183, ../sass/screen.scss */
+/* line 184, ../sass/screen.scss */
 #repl {
   margin-left: 1.639%;
 }
 @media only screen and (max-width: 550px) {
-  /* line 183, ../sass/screen.scss */
+  /* line 184, ../sass/screen.scss */
   #repl {
     display: inline;
     float: left;
@@ -312,7 +313,7 @@ nav#topmenu fieldset[role='mobile'] select {
   }
 }
 @media only screen and (min-width: 550px) {
-  /* line 183, ../sass/screen.scss */
+  /* line 184, ../sass/screen.scss */
   #repl {
     display: inline;
     float: left;
@@ -321,7 +322,7 @@ nav#topmenu fieldset[role='mobile'] select {
   }
 }
 
-/* line 195, ../sass/screen.scss */
+/* line 196, ../sass/screen.scss */
 #sandbox {
   background-color: #65a6d1;
   width: 100%;
@@ -329,7 +330,7 @@ nav#topmenu fieldset[role='mobile'] select {
   margin-bottom: 6pt;
 }
 
-/* line 202, ../sass/screen.scss */
+/* line 203, ../sass/screen.scss */
 #replinput {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(80%, #eeeeee), color-stop(100%, #aaaaaa));
   background-image: -webkit-linear-gradient(#ffffff, #eeeeee 80%, #aaaaaa);
@@ -343,7 +344,7 @@ nav#topmenu fieldset[role='mobile'] select {
   height: 175pt;
 }
 
-/* line 210, ../sass/screen.scss */
+/* line 211, ../sass/screen.scss */
 button {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #65a6d1), color-stop(100%, #3e97d1));
   background-image: -webkit-linear-gradient(#65a6d1, #3e97d1);
@@ -381,8 +382,14 @@ button:active {
   background-image: linear-gradient(#3e97d1, #65a6d1);
 }
 
-/* line 214, ../sass/screen.scss */
-button#replgo {
+/* line 215, ../sass/screen.scss */
+#replbuttons {
+  height: 0pt;
+  position: relative;
+  top: -33pt;
+}
+/* line 220, ../sass/screen.scss */
+#replbuttons button#replgo {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffc173), color-stop(70%, #ff8e00), color-stop(100%, #bf8030));
   background-image: -webkit-linear-gradient(#ffc173, #ff8e00 70%, #bf8030);
   background-image: -moz-linear-gradient(#ffc173, #ff8e00 70%, #bf8030);
@@ -406,11 +413,11 @@ button#replgo {
   cursor: pointer;
 }
 /* line 63, ../sass/screen.scss */
-button#replgo:hover {
+#replbuttons button#replgo:hover {
   text-shadow: #eeeeee 0px 0px 1px;
 }
 /* line 66, ../sass/screen.scss */
-button#replgo:active {
+#replbuttons button#replgo:active {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #bf8030), color-stop(70%, #ff8e00), color-stop(100%, #ffc173));
   background-image: -webkit-linear-gradient(#bf8030, #ff8e00 70%, #ffc173);
   background-image: -moz-linear-gradient(#bf8030, #ff8e00 70%, #ffc173);
@@ -419,7 +426,7 @@ button#replgo:active {
   background-image: linear-gradient(#bf8030, #ff8e00 70%, #ffc173);
 }
 
-/* line 218, ../sass/screen.scss */
+/* line 225, ../sass/screen.scss */
 div#main {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #3e97d1), color-stop(100%, #0a67a3));
   background-image: -webkit-linear-gradient(#3e97d1, #0a67a3);
@@ -441,7 +448,7 @@ div#main {
   padding-top: 24pt;
 }
 
-/* line 224, ../sass/screen.scss */
+/* line 231, ../sass/screen.scss */
 div#status {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #3e97d1), color-stop(100%, #24587a));
   background-image: -webkit-linear-gradient(#3e97d1, #24587a);
@@ -461,7 +468,7 @@ div#status {
   color: white;
 }
 
-/* line 229, ../sass/screen.scss */
+/* line 236, ../sass/screen.scss */
 h1 {
   font-size: bigger;
   font-weight: bold;

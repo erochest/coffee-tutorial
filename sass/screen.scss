@@ -151,10 +151,11 @@ nav#topmenu {
     @include omega;
 
     background-color: transparent;
+    margin-bottom: $margin;
 
     div {
         @include background-image($light-gradient);
-        height: 450pt + $margin;
+        height: 275pt + 175pt + $margin;
         overflow: scroll;
         padding: 0.5 * $margin;
     }
@@ -174,7 +175,7 @@ nav#topmenu {
 
     div {
         @include background-image($light-gradient);
-        height: 450pt;
+        height: 275pt + 175pt;
         overflow: scroll;
         padding: 0.5 * $margin;
     }
@@ -211,8 +212,14 @@ button {
     @include button($button-gradient, $button-inverse);
 }
 
-button#replgo {
-    @include button($b-gradient, $b-inverse);
+#replbuttons {
+    height: 0pt;
+    position: relative;
+    top: -2.75 * $margin;
+
+    button#replgo {
+        @include button($b-gradient, $b-inverse);
+    }
 }
 
 div#main {
