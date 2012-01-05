@@ -71,6 +71,7 @@
       this.fullPane = this.main.find('#fullcontent');
       this.full = this.fullPane.find('div');
       this.repl = $('#repl');
+      this.replInput = this.repl.find('#replinput');
       this.toc = {};
       this.status = $('footer #status');
       this.n = -1;
@@ -101,6 +102,7 @@
       this.populateToC(links);
       this.wireToCEvents();
       this.wireNavEvents();
+      this.wireGoEvent();
       if (toc.welcome != null) this.fullScreen(toc.welcome);
       this.setStatus(toc.title);
       this.n = -1;
@@ -172,6 +174,13 @@
       });
     };
 
+    Reader.prototype.wireGoEvent = function() {
+      var _this = this;
+      return $('#replgo').click(function(event) {
+        return _this.execCS(_this.replInput.val());
+      });
+    };
+
     Reader.prototype.toChapterEvent = function(element, chapter) {
       var _this = this;
       return $(element).click(function(event) {
@@ -226,6 +235,27 @@
       log('setStatus', message);
       this.status.html(message);
       return this;
+    };
+
+    Reader.prototype.setErrorStatus = function(error) {
+      var msg;
+      msg = error.message != null ? error.message : error;
+      return this.setStatus(msg);
+    };
+
+    Reader.prototype.execCS = function(source) {
+      var js;
+      try {
+        js = CoffeeScript.compile(source);
+      } catch (error) {
+        this.setErrorStatus(error);
+        return;
+      }
+      try {
+        return eval(js);
+      } catch (error) {
+        this.setErrorStatus(error);
+      }
     };
 
     return Reader;

@@ -473,3 +473,8 @@ h1 {
   font-size: bigger;
   font-weight: bold;
 }
+
+/* line 241, ../sass/screen.scss */
+strong {
+  font-weight: bolder;
+}

@@ -55,6 +55,7 @@ class Reader
     @fullPane    = @main.find '#fullcontent'
     @full        = @fullPane.find 'div'
     @repl        = $ '#repl'
+    @replInput   = @repl.find '#replinput'
     @toc         = {}
     @status      = $ 'footer #status'
     @n           = -1
@@ -77,6 +78,7 @@ class Reader
     this.populateToC(links)
     this.wireToCEvents()
     this.wireNavEvents()
+    this.wireGoEvent()
 
     this.fullScreen(toc.welcome) if toc.welcome?
     this.setStatus toc.title
@@ -131,6 +133,11 @@ class Reader
     $('#btnnext').click (event) =>
       this.nextChapter()
 
+  # This wires up the CoffeeScript compiler.
+  wireGoEvent: ->
+    $('#replgo').click (event) =>
+      this.execCS @replInput.val()
+
   # This actually takes care of wiring up the event.
   toChapterEvent: (element, chapter) ->
     $(element).click (event) =>
@@ -172,6 +179,22 @@ class Reader
     log 'setStatus', message
     @status.html(message)
     this
+
+  setErrorStatus: (error) ->
+    msg = if error.message? then error.message else error
+    this.setStatus msg
+
+  execCS: (source) ->
+    try
+      js = CoffeeScript.compile source
+    catch error
+      this.setErrorStatus error
+      return
+    try
+      eval(js)
+    catch error
+      this.setErrorStatus error
+      return
 
 window.Reader = Reader
 
