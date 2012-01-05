@@ -5,12 +5,10 @@
     version: "v0",
     chapters: [
       {
-        n: 0,
         title: "About",
         full: true,
         content: "<h1>About Coffee Script</h1>"
       }, {
-        n: 1,
         title: "Data",
         content: "<h1>Coffee Data</h1>"
       }

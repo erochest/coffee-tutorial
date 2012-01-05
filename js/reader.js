@@ -64,16 +64,21 @@
     }
 
     Reader.prototype.loadToC = function(toc) {
-      var chapter, links;
+      var chapter, i, links, _len, _ref;
       log('loadToC', toc);
       this.toc = toc;
       this.title.html(toc.title);
+      _ref = toc.chapters;
+      for (i = 0, _len = _ref.length; i < _len; i++) {
+        chapter = _ref[i];
+        chapter.n = i;
+      }
       links = (function() {
-        var _i, _len, _ref, _results;
-        _ref = toc.chapters;
+        var _i, _len2, _ref2, _results;
+        _ref2 = toc.chapters;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          chapter = _ref[_i];
+        for (_i = 0, _len2 = _ref2.length; _i < _len2; _i++) {
+          chapter = _ref2[_i];
           _results.push(this.chapterLink(chapter));
         }
         return _results;

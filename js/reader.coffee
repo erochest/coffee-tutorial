@@ -46,10 +46,7 @@ class Reader
     @status     = $ 'footer #status'
     @n          = -1
 
-    @shades = new WindowShade(
-      @full,
-      @main.find('#repl').add('#contentbar')
-    )
+    @shades = new WindowShade @full, @main.find('#repl').add('#contentbar')
     @shades.shades.hide()
 
   # This makes an AJAX request to load @tocUrl and displays it.
@@ -57,6 +54,8 @@ class Reader
     log 'loadToC', toc
     @toc = toc
     @title.html(toc.title)
+
+    chapter.n = i for chapter, i in toc.chapters
 
     links = (this.chapterLink(chapter) for chapter in toc.chapters)
     this.populateToC(links)

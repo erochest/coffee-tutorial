@@ -3,7 +3,6 @@ window.tutorial =
   version: "v0"
   chapters: [
     {
-      n: 0
       title: "About"
       full: true
       content: """
@@ -11,7 +10,6 @@ window.tutorial =
         """
     }
     {
-      n: 1
       title: "Data"
       content: """
         <h1>Coffee Data</h1>
