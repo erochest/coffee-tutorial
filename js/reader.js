@@ -1,5 +1,5 @@
 (function() {
-  var Reader, WindowShade;
+  var Navigator, Reader, WindowShade;
 
   WindowShade = (function() {
 
@@ -51,6 +51,103 @@
     };
 
     return WindowShade;
+
+  })();
+
+  Navigator = (function() {
+
+    function Navigator(book) {
+      this.n = -1;
+      this.load(book);
+    }
+
+    Navigator.prototype.load = function(book) {
+      var key;
+      if (this._loadbook(book)) {
+        key = "reader.nav.bookmark";
+        this.book = book;
+        this.n = localStorage[key] != null ? parseInt(localStorage[key]) : -1;
+      }
+      return this;
+    };
+
+    Navigator.prototype.getCurrentChapter = function() {
+      return this.book.chapters[this.n];
+    };
+
+    Navigator.prototype.next = function() {
+      var next;
+      next = this.n + 1;
+      if (next < this.book.chapters.length) this.to(next);
+      return this;
+    };
+
+    Navigator.prototype.previous = function() {
+      if (this.n > 0) this.to(this.n - 1);
+      return this;
+    };
+
+    Navigator.prototype.to = function(n) {
+      if (n === this.n) return;
+      if (this._closechapter()) {
+        this.n = n;
+        this._openchapter();
+      }
+      return this;
+    };
+
+    Navigator.prototype.saveWork = function(work) {
+      var key;
+      key = "reader.page." + this.n;
+      localStorage[key] = work;
+      return this;
+    };
+
+    Navigator.prototype.hasWork = function() {
+      var key;
+      key = "reader.page." + this.n;
+      return localStorage[key] != null;
+    };
+
+    Navigator.prototype.getWork = function() {
+      var key;
+      key = "reader.page." + this.n;
+      return localStorage[key];
+    };
+
+    Navigator.prototype._bookevent = function(name, book) {
+      var event;
+      event = new jQuery.Event(name);
+      event.navigator = this;
+      event.book = book;
+      $('body').trigger(event);
+      return !event.isDefaultPrevented();
+    };
+
+    Navigator.prototype._chapterevent = function(name) {
+      var event;
+      event = new jQuery.Event(name);
+      event.navigator = this;
+      event.book = this.book;
+      event.n = this.n;
+      event.chapter = this.book.chapters[this.n];
+      $('body').trigger(event);
+      return !event.isDefaultPrevented();
+    };
+
+    Navigator.prototype._loadbook = function(book) {
+      return this._bookevent('reader.nav.loadbook', book);
+    };
+
+    Navigator.prototype._openchapter = function() {
+      return this._chapterevent('reader.nav.openchapter');
+    };
+
+    Navigator.prototype._closechapter = function() {
+      return this._chapterevent('reader.nav.closechapter');
+    };
+
+    return Navigator;
 
   })();
 
