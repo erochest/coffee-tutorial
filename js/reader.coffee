@@ -9,21 +9,33 @@
 class WindowShade
   constructor: (@shades, @windows) ->
 
-  shade: ->
-    @windows.fadeOut 'normal', => @shades.fadeIn()
+  shade: (callback) ->
+    @windows.fadeOut().promise().done =>
+        callback() if callback?
+        @shades.fadeIn()
 
-  raise: ->
-    @shades.fadeOut 'normal', => @windows.fadeIn()
+  raise: (callback) ->
+    @shades.fadeOut().promise().done =>
+      callback() if callback?
+      @windows.fadeIn()
 
-  set: (shaded) ->
+  set: (shaded, callback) ->
     isShaded = this.isShaded()
     if shaded and not isShaded
-      this.shade()
+      this.shade(callback)
     else if not shaded and isShaded
-      this.raise()
+      this.raise(callback)
+    else
+      this.flash(callback)
 
   isShaded: ->
     @shades.is(':visible')
+
+  flash: (callback) ->
+    toShow = if this.isShaded() then @shades else @windows
+    @shades.add(@windows).fadeOut().promise().done =>
+      callback() if callback?
+      toShow.fadeIn()
 
 
 # A Reader object connects with the server, loads and displays resources, and
@@ -127,8 +139,8 @@ class Reader
 
   fullScreen: (message) ->
     log 'fullScreen', message
-    @shades.shade()
-    @full.html message
+    @shades.shade =>
+      @full.html message
     this
 
   isFullScreen: ->
@@ -139,9 +151,9 @@ class Reader
     @n = chapter.n
     this.setStatus "#{chapter.title}"
 
-    @shades.set(chapter.full)
     content = if chapter.full then @full else @content
-    content.html(chapter.content) if chapter.content?
+    @shades.set chapter.full, =>
+      content.html(chapter.content) if chapter.content?
 
     this
 

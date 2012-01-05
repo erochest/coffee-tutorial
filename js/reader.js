@@ -8,32 +8,46 @@
       this.windows = windows;
     }
 
-    WindowShade.prototype.shade = function() {
+    WindowShade.prototype.shade = function(callback) {
       var _this = this;
-      return this.windows.fadeOut('normal', function() {
+      return this.windows.fadeOut().promise().done(function() {
+        if (callback != null) callback();
         return _this.shades.fadeIn();
       });
     };
 
-    WindowShade.prototype.raise = function() {
+    WindowShade.prototype.raise = function(callback) {
       var _this = this;
-      return this.shades.fadeOut('normal', function() {
+      return this.shades.fadeOut().promise().done(function() {
+        if (callback != null) callback();
         return _this.windows.fadeIn();
       });
     };
 
-    WindowShade.prototype.set = function(shaded) {
+    WindowShade.prototype.set = function(shaded, callback) {
       var isShaded;
       isShaded = this.isShaded();
       if (shaded && !isShaded) {
-        return this.shade();
+        return this.shade(callback);
       } else if (!shaded && isShaded) {
-        return this.raise();
+        return this.raise(callback);
+      } else {
+        return this.flash(callback);
       }
     };
 
     WindowShade.prototype.isShaded = function() {
       return this.shades.is(':visible');
+    };
+
+    WindowShade.prototype.flash = function(callback) {
+      var toShow,
+        _this = this;
+      toShow = this.isShaded() ? this.shades : this.windows;
+      return this.shades.add(this.windows).fadeOut().promise().done(function() {
+        if (callback != null) callback();
+        return toShow.fadeIn();
+      });
     };
 
     return WindowShade;
@@ -167,9 +181,11 @@
     };
 
     Reader.prototype.fullScreen = function(message) {
+      var _this = this;
       log('fullScreen', message);
-      this.shades.shade();
-      this.full.html(message);
+      this.shades.shade(function() {
+        return _this.full.html(message);
+      });
       return this;
     };
 
@@ -178,13 +194,15 @@
     };
 
     Reader.prototype.toChapter = function(chapter) {
-      var content;
+      var content,
+        _this = this;
       log('toChapter', chapter);
       this.n = chapter.n;
       this.setStatus("" + chapter.title);
-      this.shades.set(chapter.full);
       content = chapter.full ? this.full : this.content;
-      if (chapter.content != null) content.html(chapter.content);
+      this.shades.set(chapter.full, function() {
+        if (chapter.content != null) return content.html(chapter.content);
+      });
       return this;
     };
 
