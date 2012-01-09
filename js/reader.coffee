@@ -14,9 +14,6 @@
 # triggered both by the UI and the model and views. This is also the only
 # public class, so it provides the public interface.
 
-# TODO:
-# Storing code, bookmarks between pages and sessions.
-
 # This manages the shade window. It takes two parameters: a jQuery selection of
 # the covering elements (shades) and another selection of the elements that get
 # covered (windows).
@@ -48,9 +45,13 @@ class WindowShade
 
   flash: (callback) ->
     toShow = if this.isShaded() then @shades else @windows
-    @shades.add(@windows).fadeOut().promise().done =>
+    this.hideAll().promise().done =>
       callback() if callback?
+      log 'toShow', toShow
       toShow.fadeIn()
+
+  hideAll: ->
+    @shades.add(@windows).fadeOut()
 
 # This is the `Navigator` object. It is the model for the reader.
 
@@ -58,9 +59,9 @@ class Navigator
   bookmarkKey: 'reader.nav.bookmark'
   workKey: 'reader.nav.work.'
 
-  onLoadBookName: 'reader.nav.loadbook'
-  onOpenChapterName: 'reader.nav.openchapter'
-  onCloseChapterName: 'reader.nav.closechapter'
+  onLoadBookName: 'loadbook.reader'
+  onOpenChapterName: 'openchapter.reader'
+  onCloseChapterName: 'closechapter.reader'
 
   constructor: (book) ->
     @n = -1
@@ -70,12 +71,18 @@ class Navigator
   clear: ->
     localStorage.clear()
 
-  # Triggers `reader.nav.loadbook`, which can cancel loading the book.
+  # Triggers `loadbook.reader.nav`, which can cancel loading the book.
   load: (book) ->
+    oldBook = @book
+    @book = book
     if this._loadbook(book)
       chapter.n = i for chapter, i in book.chapters
-      @book = book
-      @n = if this.hasBookmark() then this.getBookmark() else -1
+      if this.hasBookmark()
+        this.to this.getBookmark()
+      else
+        @n = -1
+    else
+      @book = oldBook
     this
 
   getCurrentChapter: ->
@@ -83,7 +90,7 @@ class Navigator
 
   # This checks whether the next page is accessible and silently stops
   # navigation if not.  Otherwise, it sets @n and triggers the
-  # `reader.nav.*chapter` events. `reader.nav.close.chapter` can cancel this.
+  # `reader.nav.*chapter` events. `closechapter.reader.nav` can cancel this.
   next: ->
     next = @n + 1
     this.to next if next < @book.chapters.length
@@ -91,14 +98,14 @@ class Navigator
 
   # This checks whether it's already at the first page and silently stops
   # navigation if so.  Otherwise, it sets @n and triggers the
-  # `reader.nav.*chapter` events. `reader.nav.close.chapter` can cancel this.
+  # `reader.nav.*chapter` events. `closechapter.reader.nav` can cancel this.
   previous: ->
     this.to(@n - 1) if @n > 0
     this
 
   # This goes to the page given. If it's the same as the current page, nothing
   # happens. Otherwise, it sets @n and triggers the `reader.nav.*chapter`
-  # events. `reader.nav.close.chapter` can cancel this.
+  # events. `closechapter.reader.nav` can cancel this.
   to: (n) ->
     return if n == @n
 
@@ -109,7 +116,7 @@ class Navigator
 
     this
 
-  # This is the handler for the `reader.viewer.tochapter` event. It just calls
+  # This is the handler for the `tochapter.reader.viewer` event. It just calls
   # `.to()`.
   onToChapter: (event) ->
     this.to event.n
@@ -197,10 +204,10 @@ class Repl
       return
 
 # This is a view function. It's meant to be called by the model and controller.
-# It triggers the `reader.viewer.status` event, which the `Viewer` listens
+# It triggers the `status.reader.viewer` event, which the `Viewer` listens
 # to and updates the status bar.
 
-onStatusName = 'reader.viewer.status'
+onStatusName = 'status.reader'
 
 status = (source, msg) ->
   event = new jQuery.Event onStatusName
@@ -217,8 +224,8 @@ errorStatus = (source, error) ->
 # handles updating the view based on that.
 
 class Viewer
-  onToChapterName: 'reader.viewer.tochapter'
-  onEvaluateName: 'reader.viewer.evaluate'
+  onToChapterName: 'tochapter.reader'
+  onEvaluateName: 'evaluate.reader'
 
   constructor: ->
     @shades = new WindowShade $('#fullcontent'), $('#repl').add('#contentpane')
@@ -226,10 +233,12 @@ class Viewer
 
   # When loading a new book, set the title, links, etc.
   onLoadBook: (event) ->
-    this.setTitle(event.book.title)
-    links = this.makeChapterLink(chapter) for chapter in event.book.chapters
+    book = event.book
+    this.setTitle(book.title)
+    links = for chapter in book.chapters
+              this.makeChapterLink(chapter) 
     this.makeToc(links)
-    this.fullScreen(event.book.welcome) if event.book.welcome?
+    this.fullScreen(book.welcome) if book.welcome? and event.navigator.n != -1
 
   setTitle: (title) ->
     $('header h1').html title
@@ -254,13 +263,15 @@ class Viewer
 
     this.wireTocEvents links
 
+  # TODO: Move this to Reader and use .live to wire the events.
   wireTocEvents: (links) ->
     chapters = c for [a, c] in links
     ul       = $ 'nav#topmenu ul'
     select   = $ 'nav#topmenu select'
 
     ul.find('li a').map (i, el) =>
-      this._tochapter i
+      $(el).click (event) =>
+        this._tochapter i
 
     select.change (event) =>
       i = parseInt select.val()
@@ -287,13 +298,15 @@ class Viewer
 
   # When closing a chapter, save the work, if it's visible.
   onCloseChapter: (event) ->
-    if not event.navigator.getCurrentChapter().full
+    chapter = event.navigator.getCurrentChapter()
+    if chapter? and not chapter.full
       event.navigator.saveWork $('#replinput').val()
     @shades.hideAll()
 
   # When opening a new chapter, populate the work, if it's visible.
   onOpenChapter: (event) ->
     chapter = event.navigator.getCurrentChapter()
+    log 'onOpenChapter', chapter.title, chapter
 
     if not chapter.full and event.navigator.hasWork()
       $('#replinput').val event.navigator.getWork()
@@ -302,6 +315,7 @@ class Viewer
 
     divId = if chapter.full then '#fullcontent div' else '#contentpane div'
     @shades.set chapter.full, =>
+      log 'shading to', chapter
       $(divId).html chapter.content if chapter.content?
 
   # When the status bar needs to be updated.
@@ -336,23 +350,22 @@ class Reader
       @viewer._evaluate $('#replinput').val()
 
     # Viewer-generated events.
-    onToChapterName = Viewer.onToChapterName
-    onEvaluateName  = Viewer.onEvaluateName
-    $('body').bind {
-      onToChapterName : (event) => @nav.onToChapter event
-      onEvaluateName  : (event) => @repl.onEvaluate event
-      onStatusName    : (event) => @viewer.onStatus event
-    }
+    onToChapterName = @viewer.onToChapterName
+    onEvaluateName  = @viewer.onEvaluateName
+    $('body')
+      .bind(onToChapterName, (event) => @nav.onToChapter event)
+      .bind(onEvaluateName,  (event) => @repl.onEvaluate event)
+      .bind(onStatusName,    (event) => @viewer.onStatus event)
 
     # Navigator-generated event.
-    onLoadBookName    = Navigator.onLoadBookName
-    onOpenChapterName = Navigator.onOpenChapterName
-    onCloseChapter    = Navigator.onCloseChapter
-    $('body').bind {
-      onLoadBookName    : (event) => @viewer.onLoadBook event
-      onOpenChapterName : (event) => @viewer.onOpenChapter event
-      onCloseChapter    : (event) => @viewer.onCloseChapter event
-    }
+    onLoadBookName     = @nav.onLoadBookName
+    onOpenChapterName  = @nav.onOpenChapterName
+    onCloseChapterName = @nav.onCloseChapterName
+    # For some reason, these aren't getting triggered.
+    $('body')
+      .bind(onLoadBookName,     (event) => @viewer.onLoadBook event)
+      .bind(onOpenChapterName,  (event) => @viewer.onOpenChapter event)
+      .bind(onCloseChapterName, (event) => @viewer.onCloseChapter event)
 
 window.Reader = Reader
 

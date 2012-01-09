@@ -44,10 +44,15 @@
       var toShow,
         _this = this;
       toShow = this.isShaded() ? this.shades : this.windows;
-      return this.shades.add(this.windows).fadeOut().promise().done(function() {
+      return this.hideAll().promise().done(function() {
         if (callback != null) callback();
+        log('toShow', toShow);
         return toShow.fadeIn();
       });
+    };
+
+    WindowShade.prototype.hideAll = function() {
+      return this.shades.add(this.windows).fadeOut();
     };
 
     return WindowShade;
@@ -60,11 +65,11 @@
 
     Navigator.prototype.workKey = 'reader.nav.work.';
 
-    Navigator.prototype.onLoadBookName = 'reader.nav.loadbook';
+    Navigator.prototype.onLoadBookName = 'loadbook.reader';
 
-    Navigator.prototype.onOpenChapterName = 'reader.nav.openchapter';
+    Navigator.prototype.onOpenChapterName = 'openchapter.reader';
 
-    Navigator.prototype.onCloseChapterName = 'reader.nav.closechapter';
+    Navigator.prototype.onCloseChapterName = 'closechapter.reader';
 
     function Navigator(book) {
       this.n = -1;
@@ -76,15 +81,22 @@
     };
 
     Navigator.prototype.load = function(book) {
-      var chapter, i, _len, _ref;
+      var chapter, i, oldBook, _len, _ref;
+      oldBook = this.book;
+      this.book = book;
       if (this._loadbook(book)) {
         _ref = book.chapters;
         for (i = 0, _len = _ref.length; i < _len; i++) {
           chapter = _ref[i];
           chapter.n = i;
         }
-        this.book = book;
-        this.n = this.hasBookmark() ? this.getBookmark() : -1;
+        if (this.hasBookmark()) {
+          this.to(this.getBookmark());
+        } else {
+          this.n = -1;
+        }
+      } else {
+        this.book = oldBook;
       }
       return this;
     };
@@ -214,7 +226,7 @@
 
   })();
 
-  onStatusName = 'reader.viewer.status';
+  onStatusName = 'status.reader';
 
   status = function(source, msg) {
     var event;
@@ -233,9 +245,9 @@
 
   Viewer = (function() {
 
-    Viewer.prototype.onToChapterName = 'reader.viewer.tochapter';
+    Viewer.prototype.onToChapterName = 'tochapter.reader';
 
-    Viewer.prototype.onEvaluateName = 'reader.viewer.evaluate';
+    Viewer.prototype.onEvaluateName = 'evaluate.reader';
 
     function Viewer() {
       this.shades = new WindowShade($('#fullcontent'), $('#repl').add('#contentpane'));
@@ -243,15 +255,23 @@
     }
 
     Viewer.prototype.onLoadBook = function(event) {
-      var chapter, links, _i, _len, _ref;
-      this.setTitle(event.book.title);
-      _ref = event.book.chapters;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        chapter = _ref[_i];
-        links = this.makeChapterLink(chapter);
-      }
+      var book, chapter, links;
+      book = event.book;
+      this.setTitle(book.title);
+      links = (function() {
+        var _i, _len, _ref, _results;
+        _ref = book.chapters;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          chapter = _ref[_i];
+          _results.push(this.makeChapterLink(chapter));
+        }
+        return _results;
+      }).call(this);
       this.makeToc(links);
-      if (event.book.welcome != null) return this.fullScreen(event.book.welcome);
+      if ((book.welcome != null) && event.navigator.n !== -1) {
+        return this.fullScreen(book.welcome);
+      }
     };
 
     Viewer.prototype.setTitle = function(title) {
@@ -300,7 +320,9 @@
       ul = $('nav#topmenu ul');
       select = $('nav#topmenu select');
       ul.find('li a').map(function(i, el) {
-        return _this._tochapter(i);
+        return $(el).click(function(event) {
+          return _this._tochapter(i);
+        });
       });
       return select.change(function(event) {
         var i;
@@ -335,7 +357,9 @@
     };
 
     Viewer.prototype.onCloseChapter = function(event) {
-      if (!event.navigator.getCurrentChapter().full) {
+      var chapter;
+      chapter = event.navigator.getCurrentChapter();
+      if ((chapter != null) && !chapter.full) {
         event.navigator.saveWork($('#replinput').val());
       }
       return this.shades.hideAll();
@@ -345,12 +369,14 @@
       var chapter, divId,
         _this = this;
       chapter = event.navigator.getCurrentChapter();
+      log('onOpenChapter', chapter.title, chapter);
       if (!chapter.full && event.navigator.hasWork()) {
         $('#replinput').val(event.navigator.getWork());
       }
       this.setStatus(chapter.title);
       divId = chapter.full ? '#fullcontent div' : '#contentpane div';
       return this.shades.set(chapter.full, function() {
+        log('shading to', chapter);
         if (chapter.content != null) return $(divId).html(chapter.content);
       });
     };
@@ -381,7 +407,7 @@
     };
 
     Reader.prototype.wireEvents = function() {
-      var onCloseChapter, onEvaluateName, onLoadBookName, onOpenChapterName, onToChapterName,
+      var onCloseChapterName, onEvaluateName, onLoadBookName, onOpenChapterName, onToChapterName,
         _this = this;
       $('#btnprev').click(function(event) {
         return _this.nav.previous();
@@ -392,32 +418,24 @@
       $('#replgo').click(function(event) {
         return _this.viewer._evaluate($('#replinput').val());
       });
-      onToChapterName = Viewer.onToChapterName;
-      onEvaluateName = Viewer.onEvaluateName;
-      $('body').bind({
-        onToChapterName: function(event) {
-          return _this.nav.onToChapter(event);
-        },
-        onEvaluateName: function(event) {
-          return _this.repl.onEvaluate(event);
-        },
-        onStatusName: function(event) {
-          return _this.viewer.onStatus(event);
-        }
+      onToChapterName = this.viewer.onToChapterName;
+      onEvaluateName = this.viewer.onEvaluateName;
+      $('body').bind(onToChapterName, function(event) {
+        return _this.nav.onToChapter(event);
+      }).bind(onEvaluateName, function(event) {
+        return _this.repl.onEvaluate(event);
+      }).bind(onStatusName, function(event) {
+        return _this.viewer.onStatus(event);
       });
-      onLoadBookName = Navigator.onLoadBookName;
-      onOpenChapterName = Navigator.onOpenChapterName;
-      onCloseChapter = Navigator.onCloseChapter;
-      return $('body').bind({
-        onLoadBookName: function(event) {
-          return _this.viewer.onLoadBook(event);
-        },
-        onOpenChapterName: function(event) {
-          return _this.viewer.onOpenChapter(event);
-        },
-        onCloseChapter: function(event) {
-          return _this.viewer.onCloseChapter(event);
-        }
+      onLoadBookName = this.nav.onLoadBookName;
+      onOpenChapterName = this.nav.onOpenChapterName;
+      onCloseChapterName = this.nav.onCloseChapterName;
+      return $('body').bind(onLoadBookName, function(event) {
+        return _this.viewer.onLoadBook(event);
+      }).bind(onOpenChapterName, function(event) {
+        return _this.viewer.onOpenChapter(event);
+      }).bind(onCloseChapterName, function(event) {
+        return _this.viewer.onCloseChapter(event);
       });
     };
 
