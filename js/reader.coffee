@@ -59,6 +59,7 @@ class Navigator
   workKey: 'reader.nav.work.'
 
   onLoadBookName: 'loadbook.reader'
+  postLoadBookName: 'postloadbook.reader'
   onOpenChapterName: 'openchapter.reader'
   onCloseChapterName: 'closechapter.reader'
 
@@ -80,6 +81,7 @@ class Navigator
         this.to this.getBookmark()
       else
         @n = -1
+      this._postloadbook book
     else
       @book = oldBook
     this
@@ -173,6 +175,9 @@ class Navigator
   _loadbook: (book) ->
     this._bookevent this.onLoadBookName, book
 
+  _postloadbook: (book) ->
+    this._bookevent this.postLoadBookName, book
+
   _openchapter: ->
     this._chapterevent this.onOpenChapterName
 
@@ -237,7 +242,10 @@ class Viewer
     links = for chapter in book.chapters
               this.makeChapterLink(chapter) 
     this.makeToc(links)
-    this.fullScreen(book.welcome) if book.welcome? and event.navigator.n != -1
+
+  postLoadBook: (event) ->
+    book = event.book
+    this.fullScreen(book.welcome) if book.welcome? and event.navigator.n === -1
 
   setTitle: (title) ->
     $('header h1').html title
@@ -356,11 +364,13 @@ class Reader
 
     # Navigator-generated event.
     onLoadBookName     = @nav.onLoadBookName
+    postLoadBookName   = @nav.postLoadBookName
     onOpenChapterName  = @nav.onOpenChapterName
     onCloseChapterName = @nav.onCloseChapterName
     # For some reason, these aren't getting triggered.
     $('body')
       .bind(onLoadBookName,     (event) => @viewer.onLoadBook event)
+      .bind(postLoadBookName,   (event) => @viewer.postLoadBook event)
       .bind(onOpenChapterName,  (event) => @viewer.onOpenChapter event)
       .bind(onCloseChapterName, (event) => @viewer.onCloseChapter event)
 

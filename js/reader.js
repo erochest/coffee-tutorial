@@ -66,6 +66,8 @@
 
     Navigator.prototype.onLoadBookName = 'loadbook.reader';
 
+    Navigator.prototype.postLoadBookName = 'postloadbook.reader';
+
     Navigator.prototype.onOpenChapterName = 'openchapter.reader';
 
     Navigator.prototype.onCloseChapterName = 'closechapter.reader';
@@ -94,6 +96,7 @@
         } else {
           this.n = -1;
         }
+        this._postloadbook(book);
       } else {
         this.book = oldBook;
       }
@@ -186,6 +189,10 @@
       return this._bookevent(this.onLoadBookName, book);
     };
 
+    Navigator.prototype._postloadbook = function(book) {
+      return this._bookevent(this.postLoadBookName, book);
+    };
+
     Navigator.prototype._openchapter = function() {
       return this._chapterevent(this.onOpenChapterName);
     };
@@ -267,8 +274,14 @@
         }
         return _results;
       }).call(this);
-      this.makeToc(links);
-      if ((book.welcome != null) && event.navigator.n !== -1) {
+      return this.makeToc(links);
+    };
+
+    Viewer.prototype.postLoadBook = function(event) {
+      var book;
+      log('postLoadBook', event);
+      book = event.book;
+      if ((book.welcome != null) && event.navigator.n === -1) {
         return this.fullScreen(book.welcome);
       }
     };
@@ -404,7 +417,7 @@
     };
 
     Reader.prototype.wireEvents = function() {
-      var onCloseChapterName, onEvaluateName, onLoadBookName, onOpenChapterName, onToChapterName,
+      var onCloseChapterName, onEvaluateName, onLoadBookName, onOpenChapterName, onToChapterName, postLoadBookName,
         _this = this;
       $('#btnprev').click(function(event) {
         return _this.nav.previous();
@@ -425,10 +438,13 @@
         return _this.viewer.onStatus(event);
       });
       onLoadBookName = this.nav.onLoadBookName;
+      postLoadBookName = this.nav.postLoadBookName;
       onOpenChapterName = this.nav.onOpenChapterName;
       onCloseChapterName = this.nav.onCloseChapterName;
       return $('body').bind(onLoadBookName, function(event) {
         return _this.viewer.onLoadBook(event);
+      }).bind(postLoadBookName, function(event) {
+        return _this.viewer.postLoadBook(event);
       }).bind(onOpenChapterName, function(event) {
         return _this.viewer.onOpenChapter(event);
       }).bind(onCloseChapterName, function(event) {
