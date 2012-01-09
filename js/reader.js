@@ -46,7 +46,6 @@
       toShow = this.isShaded() ? this.shades : this.windows;
       return this.hideAll().promise().done(function() {
         if (callback != null) callback();
-        log('toShow', toShow);
         return toShow.fadeIn();
       });
     };
@@ -369,14 +368,12 @@
       var chapter, divId,
         _this = this;
       chapter = event.navigator.getCurrentChapter();
-      log('onOpenChapter', chapter.title, chapter);
       if (!chapter.full && event.navigator.hasWork()) {
         $('#replinput').val(event.navigator.getWork());
       }
       this.setStatus(chapter.title);
       divId = chapter.full ? '#fullcontent div' : '#contentpane div';
       return this.shades.set(chapter.full, function() {
-        log('shading to', chapter);
         if (chapter.content != null) return $(divId).html(chapter.content);
       });
     };

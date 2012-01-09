@@ -47,7 +47,6 @@ class WindowShade
     toShow = if this.isShaded() then @shades else @windows
     this.hideAll().promise().done =>
       callback() if callback?
-      log 'toShow', toShow
       toShow.fadeIn()
 
   hideAll: ->
@@ -306,7 +305,6 @@ class Viewer
   # When opening a new chapter, populate the work, if it's visible.
   onOpenChapter: (event) ->
     chapter = event.navigator.getCurrentChapter()
-    log 'onOpenChapter', chapter.title, chapter
 
     if not chapter.full and event.navigator.hasWork()
       $('#replinput').val event.navigator.getWork()
@@ -315,7 +313,6 @@ class Viewer
 
     divId = if chapter.full then '#fullcontent div' else '#contentpane div'
     @shades.set chapter.full, =>
-      log 'shading to', chapter
       $(divId).html chapter.content if chapter.content?
 
   # When the status bar needs to be updated.
