@@ -279,7 +279,6 @@
 
     Viewer.prototype.postLoadBook = function(event) {
       var book;
-      log('postLoadBook', event);
       book = event.book;
       if ((book.welcome != null) && event.navigator.n === -1) {
         return this.fullScreen(book.welcome);
