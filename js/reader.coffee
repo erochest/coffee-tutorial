@@ -215,10 +215,13 @@ class NavTree
     "<li data-chapter='#{ i }' data-section='#{ j }'>#{ section.title }</li>"
 
   onOpenChapter: (event) ->
-    null
+    chapter = event.navigator.getCurrentChapter()
+    lis = @el.find('> ol > li')
+    log lis, chapter.n, lis[chapter.n]
+    $(lis[chapter.n]).addClass 'active'
 
   onCloseChapter: (event) ->
-    null
+    @el.find('.active').removeClass 'active'
 
   onClick: (event, reader) ->
     li      = $ event.target

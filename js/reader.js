@@ -256,11 +256,15 @@
     };
 
     NavTree.prototype.onOpenChapter = function(event) {
-      return null;
+      var chapter, lis;
+      chapter = event.navigator.getCurrentChapter();
+      lis = this.el.find('> ol > li');
+      log(lis, chapter.n, lis[chapter.n]);
+      return $(lis[chapter.n]).addClass('active');
     };
 
     NavTree.prototype.onCloseChapter = function(event) {
-      return null;
+      return this.el.find('.active').removeClass('active');
     };
 
     NavTree.prototype.onClick = function(event, reader) {

@@ -266,8 +266,12 @@ nav#sidebar li {
 nav#sidebar li:hover {
   font-weight: bold;
 }
+/* line 158, ../sass/screen.scss */
+nav#sidebar li.active {
+  font-weight: bold;
+}
 
-/* line 161, ../sass/screen.scss */
+/* line 164, ../sass/screen.scss */
 #main {
   display: inline;
   float: left;
@@ -278,19 +282,19 @@ nav#sidebar li:hover {
   margin-right: 1.015%;
   #margin-left: -1%;
 }
-/* line 165, ../sass/screen.scss */
+/* line 168, ../sass/screen.scss */
 #main div.panel {
   overflow: hidden;
   *zoom: 1;
 }
-/* line 169, ../sass/screen.scss */
+/* line 172, ../sass/screen.scss */
 #main nav {
   overflow: hidden;
   *zoom: 1;
   background-color: transparent;
 }
 
-/* line 176, ../sass/screen.scss */
+/* line 179, ../sass/screen.scss */
 #fullcontent {
   display: inline;
   float: left;
@@ -303,7 +307,7 @@ nav#sidebar li:hover {
   background-color: transparent;
   margin-bottom: 12pt;
 }
-/* line 183, ../sass/screen.scss */
+/* line 186, ../sass/screen.scss */
 #fullcontent div {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #eeeeee), color-stop(80%, #cccccc), color-stop(100%, #aaaaaa));
   background-image: -webkit-linear-gradient(#eeeeee, #cccccc 80%, #aaaaaa);
@@ -316,12 +320,12 @@ nav#sidebar li:hover {
   padding: 6pt;
 }
 
-/* line 191, ../sass/screen.scss */
+/* line 194, ../sass/screen.scss */
 #contentpane {
   margin-bottom: 12pt;
 }
 @media only screen and (max-width: 550px) {
-  /* line 191, ../sass/screen.scss */
+  /* line 194, ../sass/screen.scss */
   #contentpane {
     clear: both;
     margin-left: 1.015%;
@@ -329,7 +333,7 @@ nav#sidebar li:hover {
   }
 }
 @media only screen and (min-width: 550px) {
-  /* line 191, ../sass/screen.scss */
+  /* line 194, ../sass/screen.scss */
   #contentpane {
     display: inline;
     float: left;
@@ -337,7 +341,7 @@ nav#sidebar li:hover {
     margin-right: 1.299%;
   }
 }
-/* line 201, ../sass/screen.scss */
+/* line 204, ../sass/screen.scss */
 #contentpane div {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #eeeeee), color-stop(80%, #cccccc), color-stop(100%, #aaaaaa));
   background-image: -webkit-linear-gradient(#eeeeee, #cccccc 80%, #aaaaaa);
@@ -350,12 +354,12 @@ nav#sidebar li:hover {
   padding: 3.175%;
 }
 
-/* line 209, ../sass/screen.scss */
+/* line 212, ../sass/screen.scss */
 #repl {
   height: 450pt;
 }
 @media only screen and (max-width: 550px) {
-  /* line 209, ../sass/screen.scss */
+  /* line 212, ../sass/screen.scss */
   #repl {
     clear: both;
     margin-left: 1.015%;
@@ -363,7 +367,7 @@ nav#sidebar li:hover {
   }
 }
 @media only screen and (min-width: 550px) {
-  /* line 209, ../sass/screen.scss */
+  /* line 212, ../sass/screen.scss */
   #repl {
     display: inline;
     float: left;
@@ -376,7 +380,7 @@ nav#sidebar li:hover {
   }
 }
 
-/* line 220, ../sass/screen.scss */
+/* line 223, ../sass/screen.scss */
 #sandbox {
   background-color: #65a6d1;
   width: 100%;
@@ -384,7 +388,7 @@ nav#sidebar li:hover {
   margin-bottom: 6pt;
 }
 
-/* line 227, ../sass/screen.scss */
+/* line 230, ../sass/screen.scss */
 #replinput {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #eeeeee), color-stop(80%, #cccccc), color-stop(100%, #aaaaaa));
   background-image: -webkit-linear-gradient(#eeeeee, #cccccc 80%, #aaaaaa);
@@ -398,7 +402,7 @@ nav#sidebar li:hover {
   height: 168pt;
 }
 
-/* line 235, ../sass/screen.scss */
+/* line 238, ../sass/screen.scss */
 button {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #65a6d1), color-stop(100%, #3e97d1));
   background-image: -webkit-linear-gradient(#65a6d1, #3e97d1);
@@ -436,13 +440,13 @@ button:active {
   background-image: linear-gradient(#3e97d1, #65a6d1);
 }
 
-/* line 239, ../sass/screen.scss */
+/* line 242, ../sass/screen.scss */
 #replbuttons {
   height: 0pt;
   position: relative;
   top: -33pt;
 }
-/* line 244, ../sass/screen.scss */
+/* line 247, ../sass/screen.scss */
 #replbuttons button#replgo {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffc173), color-stop(70%, #ff8e00), color-stop(100%, #bf8030));
   background-image: -webkit-linear-gradient(#ffc173, #ff8e00 70%, #bf8030);
@@ -480,7 +484,7 @@ button:active {
   background-image: linear-gradient(#bf8030, #ff8e00 70%, #ffc173);
 }
 
-/* line 249, ../sass/screen.scss */
+/* line 252, ../sass/screen.scss */
 div#main {
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #3e97d1), color-stop(100%, #0a67a3));
   background-image: -webkit-linear-gradient(#3e97d1, #0a67a3);
@@ -503,18 +507,18 @@ div#main {
   margin-bottom: 12pt;
 }
 
-/* line 259, ../sass/screen.scss */
+/* line 262, ../sass/screen.scss */
 h1 {
   font-size: bigger;
   font-weight: bold;
 }
 
-/* line 264, ../sass/screen.scss */
+/* line 267, ../sass/screen.scss */
 em {
   font-style: italic;
 }
 
-/* line 268, ../sass/screen.scss */
+/* line 271, ../sass/screen.scss */
 strong {
   font-weight: bolder;
 }

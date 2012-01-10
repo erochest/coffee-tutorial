@@ -155,6 +155,9 @@ nav#sidebar {
         &:hover {
             font-weight: bold;
         }
+        &.active {
+            font-weight: bold;
+        }
     }
 }
 
