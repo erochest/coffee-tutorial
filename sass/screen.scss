@@ -87,6 +87,8 @@ header {
     @include window();
     @include clearfix;
 
+    padding-left: gutter(15);
+
     h1 {
         @include float-left;
         font-weight: bolder;
@@ -97,6 +99,9 @@ header {
 
 footer {
     @include full;
+    @include window();
+    padding-left: gutter(15);
+    color: $text-light;
 }
 
 nav#topmenu {
@@ -241,8 +246,6 @@ div#main {
 }
 
 div#status {
-    @include window();
-    color: $text-light;
 }
 
 h1 {
