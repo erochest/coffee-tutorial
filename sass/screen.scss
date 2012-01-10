@@ -57,7 +57,7 @@ $heightunit : 24pt;
     @include float-right;
     margin-top: 0.5 * $margin;
     margin-left: 0.25 * $margin;
-    margin-right: 0.25 * $margin;
+    margin-right: 0.5 * $margin;
     border: 0pt;
     width: 45pt;
     height: 0.75 * $heightunit;
@@ -149,6 +149,12 @@ nav#sidebar {
 
     ol {
         margin-left: 1em;
+    }
+    li {
+        cursor: pointer;
+        &:hover {
+            font-weight: bold;
+        }
     }
 }
 

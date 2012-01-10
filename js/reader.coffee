@@ -186,6 +186,48 @@ class Navigator
 
   # TODO: section navigation
 
+# This handles the Navigational Tree widget.
+
+class NavTree
+  constructor: (@elid) ->
+    @el = $(@elid)
+
+  onLoadBook: (event) ->
+    this.loadBook event.book
+
+  loadBook: (book) ->
+    lis = for chapter, i in book.chapters
+      this.makeChapterLi i, chapter
+    ol = if lis.length > 0 then "<ol>#{ lis.join('') }</ol>" else ""
+    @el.html ol
+
+  makeChapterLi: (i, chapter) ->
+    sectionOl = ""
+    if chapter.sections?
+      secLi = for section, j in chapter.sections
+        this.makeSectionLi i, j, section 
+      if secLi.length > 0
+        sectionOl = "<ol>#{ secLi.join('') }</ol>"
+
+    "<li data-chapter='#{ i }'>#{ chapter.title }#{ sectionOl }</li>"
+
+  makeSectionLi: (i, j, section) ->
+    "<li data-chapter='#{ i }' data-section='#{ j }'>#{ section.title }</li>"
+
+  onOpenChapter: (event) ->
+    null
+
+  onCloseChapter: (event) ->
+    null
+
+  onClick: (event, reader) ->
+    li      = $ event.target
+    chapter = li.attr 'data-chapter'
+    section = li.attr 'data-section'
+    if chapter?
+      reader.nav.to parseInt(chapter)
+
+
 # This handles running the CoffeeScript. Having a whole model class for this is
 # really pretty heavy, but I wanted to keep things tidier.
 
@@ -240,9 +282,6 @@ class Viewer
   onLoadBook: (event) ->
     book = event.book
     this.setTitle(book.title)
-    links = for chapter in book.chapters
-              this.makeChapterLink(chapter) 
-    this.makeToc(links)
 
   postLoadBook: (event) ->
     book = event.book
@@ -251,25 +290,6 @@ class Viewer
   setTitle: (title) ->
     $('header h1').html title
     this.setStatus title
-
-  # This makes a link to a chapter title and returns the chapter itself also.
-  makeChapterLink: (chapter) ->
-    ["<a>#{ chapter.title }</a>", chapter]
-
-  makeToc: (links) ->
-    ul     = $ 'nav#topmenu ul'
-    select = $ 'nav#topmenu select'
-
-    ul.html(
-      ( "<li>#{ a }</li>" for [a, c] in links ).join('')
-    )
-
-    options = for [a, c], i in links
-                "<option value='#{ i }'>#{ c.title }</option>"
-    options.unshift "<option><em>Select</em></option>"
-    select.html options.join('')
-
-    this.wireTocEvents links
 
   # TODO: Move this to Reader and use .live to wire the events.
   wireTocEvents: (links) ->
@@ -336,9 +356,10 @@ class Viewer
 # controls user interactions.
 class Reader
   constructor: () ->
-    @nav    = new Navigator()
-    @repl   = new Repl()
-    @viewer = new Viewer()
+    @nav     = new Navigator()
+    @navtree = new NavTree 'nav#sidebar'
+    @repl    = new Repl()
+    @viewer  = new Viewer()
 
     this.wireEvents()
 
@@ -358,7 +379,7 @@ class Reader
     # Viewer-generated events.
     onToChapterName = @viewer.onToChapterName
     onEvaluateName  = @viewer.onEvaluateName
-    $('body')
+    $(document)
       .bind(onToChapterName, (event) => @nav.onToChapter event)
       .bind(onEvaluateName,  (event) => @repl.onEvaluate event)
       .bind(onStatusName,    (event) => @viewer.onStatus event)
@@ -369,11 +390,18 @@ class Reader
     onOpenChapterName  = @nav.onOpenChapterName
     onCloseChapterName = @nav.onCloseChapterName
     # For some reason, these aren't getting triggered.
-    $('body')
+    $(document)
       .bind(onLoadBookName,     (event) => @viewer.onLoadBook event)
+      .bind(onLoadBookName,     (event) => @navtree.onLoadBook event)
       .bind(postLoadBookName,   (event) => @viewer.postLoadBook event)
       .bind(onOpenChapterName,  (event) => @viewer.onOpenChapter event)
+      .bind(onOpenChapterName,  (event) => @navtree.onOpenChapter event)
       .bind(onCloseChapterName, (event) => @viewer.onCloseChapter event)
+      .bind(onCloseChapterName, (event) => @navtree.onCloseChapter event)
+
+    # Chapter events.
+    $(document)
+      .live('click', 'nav#sidebar li', (event) => @navtree.onClick event, reader)
 
 window.Reader = Reader
 

@@ -1,5 +1,5 @@
 (function() {
-  var Navigator, Reader, Repl, Viewer, WindowShade, errorStatus, onStatusName, status;
+  var NavTree, Navigator, Reader, Repl, Viewer, WindowShade, errorStatus, onStatusName, status;
 
   WindowShade = (function() {
 
@@ -205,6 +205,76 @@
 
   })();
 
+  NavTree = (function() {
+
+    function NavTree(elid) {
+      this.elid = elid;
+      this.el = $(this.elid);
+    }
+
+    NavTree.prototype.onLoadBook = function(event) {
+      return this.loadBook(event.book);
+    };
+
+    NavTree.prototype.loadBook = function(book) {
+      var chapter, i, lis, ol;
+      lis = (function() {
+        var _len, _ref, _results;
+        _ref = book.chapters;
+        _results = [];
+        for (i = 0, _len = _ref.length; i < _len; i++) {
+          chapter = _ref[i];
+          _results.push(this.makeChapterLi(i, chapter));
+        }
+        return _results;
+      }).call(this);
+      ol = lis.length > 0 ? "<ol>" + (lis.join('')) + "</ol>" : "";
+      return this.el.html(ol);
+    };
+
+    NavTree.prototype.makeChapterLi = function(i, chapter) {
+      var j, secLi, section, sectionOl;
+      sectionOl = "";
+      if (chapter.sections != null) {
+        secLi = (function() {
+          var _len, _ref, _results;
+          _ref = chapter.sections;
+          _results = [];
+          for (j = 0, _len = _ref.length; j < _len; j++) {
+            section = _ref[j];
+            _results.push(this.makeSectionLi(i, j, section));
+          }
+          return _results;
+        }).call(this);
+        if (secLi.length > 0) sectionOl = "<ol>" + (secLi.join('')) + "</ol>";
+      }
+      return "<li data-chapter='" + i + "'>" + chapter.title + sectionOl + "</li>";
+    };
+
+    NavTree.prototype.makeSectionLi = function(i, j, section) {
+      return "<li data-chapter='" + i + "' data-section='" + j + "'>" + section.title + "</li>";
+    };
+
+    NavTree.prototype.onOpenChapter = function(event) {
+      return null;
+    };
+
+    NavTree.prototype.onCloseChapter = function(event) {
+      return null;
+    };
+
+    NavTree.prototype.onClick = function(event, reader) {
+      var chapter, li, section;
+      li = $(event.target);
+      chapter = li.attr('data-chapter');
+      section = li.attr('data-section');
+      if (chapter != null) return reader.nav.to(parseInt(chapter));
+    };
+
+    return NavTree;
+
+  })();
+
   Repl = (function() {
 
     function Repl() {}
@@ -262,20 +332,9 @@
     }
 
     Viewer.prototype.onLoadBook = function(event) {
-      var book, chapter, links;
+      var book;
       book = event.book;
-      this.setTitle(book.title);
-      links = (function() {
-        var _i, _len, _ref, _results;
-        _ref = book.chapters;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          chapter = _ref[_i];
-          _results.push(this.makeChapterLink(chapter));
-        }
-        return _results;
-      }).call(this);
-      return this.makeToc(links);
+      return this.setTitle(book.title);
     };
 
     Viewer.prototype.postLoadBook = function(event) {
@@ -289,37 +348,6 @@
     Viewer.prototype.setTitle = function(title) {
       $('header h1').html(title);
       return this.setStatus(title);
-    };
-
-    Viewer.prototype.makeChapterLink = function(chapter) {
-      return ["<a>" + chapter.title + "</a>", chapter];
-    };
-
-    Viewer.prototype.makeToc = function(links) {
-      var a, c, i, options, select, ul;
-      ul = $('nav#topmenu ul');
-      select = $('nav#topmenu select');
-      ul.html(((function() {
-        var _i, _len, _ref, _results;
-        _results = [];
-        for (_i = 0, _len = links.length; _i < _len; _i++) {
-          _ref = links[_i], a = _ref[0], c = _ref[1];
-          _results.push("<li>" + a + "</li>");
-        }
-        return _results;
-      })()).join(''));
-      options = (function() {
-        var _len, _ref, _results;
-        _results = [];
-        for (i = 0, _len = links.length; i < _len; i++) {
-          _ref = links[i], a = _ref[0], c = _ref[1];
-          _results.push("<option value='" + i + "'>" + c.title + "</option>");
-        }
-        return _results;
-      })();
-      options.unshift("<option><em>Select</em></option>");
-      select.html(options.join(''));
-      return this.wireTocEvents(links);
     };
 
     Viewer.prototype.wireTocEvents = function(links) {
@@ -407,6 +435,7 @@
 
     function Reader() {
       this.nav = new Navigator();
+      this.navtree = new NavTree('nav#sidebar');
       this.repl = new Repl();
       this.viewer = new Viewer();
       this.wireEvents();
@@ -430,7 +459,7 @@
       });
       onToChapterName = this.viewer.onToChapterName;
       onEvaluateName = this.viewer.onEvaluateName;
-      $('body').bind(onToChapterName, function(event) {
+      $(document).bind(onToChapterName, function(event) {
         return _this.nav.onToChapter(event);
       }).bind(onEvaluateName, function(event) {
         return _this.repl.onEvaluate(event);
@@ -441,14 +470,23 @@
       postLoadBookName = this.nav.postLoadBookName;
       onOpenChapterName = this.nav.onOpenChapterName;
       onCloseChapterName = this.nav.onCloseChapterName;
-      return $('body').bind(onLoadBookName, function(event) {
+      $(document).bind(onLoadBookName, function(event) {
         return _this.viewer.onLoadBook(event);
+      }).bind(onLoadBookName, function(event) {
+        return _this.navtree.onLoadBook(event);
       }).bind(postLoadBookName, function(event) {
         return _this.viewer.postLoadBook(event);
       }).bind(onOpenChapterName, function(event) {
         return _this.viewer.onOpenChapter(event);
+      }).bind(onOpenChapterName, function(event) {
+        return _this.navtree.onOpenChapter(event);
       }).bind(onCloseChapterName, function(event) {
         return _this.viewer.onCloseChapter(event);
+      }).bind(onCloseChapterName, function(event) {
+        return _this.navtree.onCloseChapter(event);
+      });
+      return $(document).live('click', 'nav#sidebar li', function(event) {
+        return _this.navtree.onClick(event, reader);
       });
     };
 
