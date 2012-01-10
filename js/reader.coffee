@@ -221,7 +221,8 @@ status = (source, msg) ->
   not event.isDefaultPrevented()
 
 errorStatus = (source, error) ->
-  msg = if error.message? then error.message else error
+  log 'ERROR:', source, error
+  msg = if error? and error.message? then error.message else error
   status source, msg
 
 # This handles the view. It has listeners for the `Navigator's` events, and it

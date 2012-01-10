@@ -245,7 +245,8 @@
 
   errorStatus = function(source, error) {
     var msg;
-    msg = error.message != null ? error.message : error;
+    log('ERROR:', source, error);
+    msg = (error != null) && (error.message != null) ? error.message : error;
     return status(source, msg);
   };
 
