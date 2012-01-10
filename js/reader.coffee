@@ -245,7 +245,7 @@ class Viewer
 
   postLoadBook: (event) ->
     book = event.book
-    this.fullScreen(book.welcome) if book.welcome? and event.navigator.n === -1
+    this.fullScreen(book.welcome) if book.welcome? and event.navigator.n == -1
 
   setTitle: (title) ->
     $('header h1').html title
