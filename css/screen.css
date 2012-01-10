@@ -78,7 +78,7 @@ body {
 #container {
   *zoom: 1;
   margin: auto;
-  width: 61em;
+  width: 100%;
   max-width: 100%;
 }
 /* line 38, ../../../.rvm/gems/ruby-1.9.3-p0/gems/compass-0.11.5/frameworks/compass/stylesheets/compass/utilities/general/_clearfix.scss */
@@ -91,9 +91,9 @@ body {
 /* line 82, ../sass/screen.scss */
 header {
   clear: both;
-  margin-left: 1.639%;
-  margin-right: 1.639%;
-  margin-left: 1.639%;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-left: 1%;
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #3e97d1), color-stop(100%, #24587a));
   background-image: -webkit-linear-gradient(#3e97d1, #24587a);
   background-image: -moz-linear-gradient(#3e97d1, #24587a);
@@ -124,9 +124,9 @@ header h1 {
 /* line 96, ../sass/screen.scss */
 footer {
   clear: both;
-  margin-left: 1.639%;
-  margin-right: 1.639%;
-  margin-left: 1.639%;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-left: 1%;
 }
 
 /* line 102, ../sass/screen.scss */
@@ -195,8 +195,8 @@ nav#topmenu ul li a:active {
 /* line 116, ../sass/screen.scss */
 nav#topmenu fieldset[role='mobile'] select {
   clear: both;
-  margin-left: 1.639%;
-  margin-right: 1.639%;
+  margin-left: 1%;
+  margin-right: 1%;
 }
 @media only screen and (max-width: 550px) {
   /* line 122, ../sass/screen.scss */
@@ -214,8 +214,8 @@ nav#topmenu fieldset[role='mobile'] select {
 /* line 134, ../sass/screen.scss */
 #main {
   clear: both;
-  margin-left: 1.639%;
-  margin-right: 1.639%;
+  margin-left: 1%;
+  margin-right: 1%;
 }
 /* line 137, ../sass/screen.scss */
 #main div.panel {
@@ -233,12 +233,12 @@ nav#topmenu fieldset[role='mobile'] select {
 #fullcontent {
   display: inline;
   float: left;
-  width: 96.721%;
-  margin-right: 1.639%;
+  width: 98%;
+  margin-right: 1%;
   display: inline;
   float: right;
-  margin-right: 1.639%;
-  #margin-left: -1em;
+  margin-right: 1%;
+  #margin-left: -1%;
   background-color: transparent;
   margin-bottom: 12pt;
 }
@@ -258,19 +258,19 @@ nav#topmenu fieldset[role='mobile'] select {
 /* line 163, ../sass/screen.scss */
 #contentpane {
   margin-bottom: 12pt;
-  margin-left: 1.639%;
+  margin-left: 1%;
 }
 @media only screen and (max-width: 550px) {
   /* line 163, ../sass/screen.scss */
   #contentpane {
     display: inline;
     float: right;
-    margin-right: 1.639%;
-    #margin-left: -1em;
+    margin-right: 1%;
+    #margin-left: -1%;
     display: inline;
     float: left;
-    width: 96.721%;
-    margin-right: 1.639%;
+    width: 98%;
+    margin-right: 1%;
   }
 }
 @media only screen and (min-width: 550px) {
@@ -278,8 +278,8 @@ nav#topmenu fieldset[role='mobile'] select {
   #contentpane {
     display: inline;
     float: left;
-    width: 31.148%;
-    margin-right: 1.639%;
+    width: 32%;
+    margin-right: 1%;
   }
 }
 /* line 175, ../sass/screen.scss */
@@ -299,17 +299,17 @@ nav#topmenu fieldset[role='mobile'] select {
 #repl {
   display: inline;
   float: right;
-  margin-right: 1.639%;
-  #margin-left: -1em;
+  margin-right: 1%;
+  #margin-left: -1%;
 }
 @media only screen and (max-width: 550px) {
   /* line 183, ../sass/screen.scss */
   #repl {
     display: inline;
     float: left;
-    width: 96.721%;
-    margin-right: 1.639%;
-    margin-left: 1.639%;
+    width: 98%;
+    margin-right: 1%;
+    margin-left: 1%;
   }
 }
 @media only screen and (min-width: 550px) {
@@ -317,8 +317,8 @@ nav#topmenu fieldset[role='mobile'] select {
   #repl {
     display: inline;
     float: left;
-    width: 63.934%;
-    margin-right: 1.639%;
+    width: 65%;
+    margin-right: 1%;
   }
 }
 
