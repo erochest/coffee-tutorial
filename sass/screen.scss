@@ -39,13 +39,16 @@ $text-light : white;
 $text-dark  : black;
 
 $margin     : 12pt;
+$heightunit : 24pt;
 
 @mixin window($gradient: $gradient) {
     @include background-image($gradient);
     @include border-radius();
     margin-top: $margin;
-    margin-bottom: $margin;
-    padding: $margin;
+    // margin-bottom: $margin;
+    // padding: $margin;
+    padding-top: $margin;
+    padding-bottom: $margin;
 }
 
 @mixin button($gradient, $inverse) {
@@ -57,7 +60,7 @@ $margin     : 12pt;
     margin-right: 0.25 * $margin;
     border: 0pt;
     width: 45pt;
-    height: 1.5 * $margin;
+    height: 0.75 * $heightunit;
     cursor: pointer;
 
     &:hover {
@@ -81,7 +84,6 @@ body {
 
 header {
     @include full;
-    @include alpha;
     @include window();
     @include clearfix;
 
@@ -95,7 +97,6 @@ header {
 
 footer {
     @include full;
-    @include alpha;
 }
 
 nav#topmenu {
@@ -131,8 +132,22 @@ nav#topmenu {
     }
 }
 
+nav#sidebar {
+    @include columns(3);
+    @include alpha;
+    @include window($main-gradient);
+
+    color: $text-light;
+    height: (11 + 7 + 2.15) * $heightunit;
+
+    ol {
+        margin-left: 1em;
+    }
+}
+
 #main {
-    @include full;
+    @include columns(12);;
+    @include omega;
 
     div.panel {
         @include clearfix;
@@ -146,15 +161,15 @@ nav#topmenu {
 }
 
 #fullcontent {
-    @include columns(12);
-    @include omega;
+    @include columns(12, 12);
+    @include omega(12);
 
     background-color: transparent;
     margin-bottom: $margin;
 
     div {
         @include background-image($light-gradient);
-        height: 275pt + 175pt + $margin;
+        height: (11 + 7 + 0.75) * $heightunit;
         overflow: scroll;
         padding: 0.5 * $margin;
     }
@@ -162,40 +177,37 @@ nav#topmenu {
 
 #contentpane {
     margin-bottom: $margin;
-    @include alpha;
 
     @media only screen and (max-width: 550px) {
-        @include omega;
-        @include columns(12);
+        @include full;
     }
     @media only screen and (min-width: 550px) {
-        @include columns(4);
+        @include columns(4, 12);
     }
 
     div {
         @include background-image($light-gradient);
-        height: 275pt + 175pt;
+        height: (11 + 7) * $heightunit;
         overflow: scroll;
-        padding: 0.5 * $margin;
+        padding: gutter(5);
     }
 }
 
 #repl {
-    @include omega;
-
+    height: (11 + 7 + 0.75) * $heightunit;
     @media only screen and (max-width: 550px) {
-        @include columns(12);
-        @include alpha;
+        @include full;
     }
     @media only screen and (min-width: 550px) {
-        @include columns(8);
+        @include columns(8, 12);
+        @include omega(12);
     }
 }
 
 #sandbox {
     background-color: $a-light1;
     width: 100%;
-    height: 275pt;
+    height: 11 * $heightunit;
     margin-bottom: 0.5 * $margin;
 }
 
@@ -204,7 +216,7 @@ nav#topmenu {
     font-family: 'Inconsolata', sans-serif;
     font-size: $margin;
     width: 100%;
-    height: 175pt;
+    height: 7 * $heightunit;
 }
 
 button {
@@ -224,7 +236,8 @@ button {
 div#main {
     @include window($main-gradient);
     @include clearfix;
-    padding-top: 2 * $margin;
+    padding-top: 1.25 * $margin;
+    margin-bottom: $margin;
 }
 
 div#status {
