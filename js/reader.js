@@ -259,7 +259,6 @@
       var chapter, lis;
       chapter = event.navigator.getCurrentChapter();
       lis = this.el.find('> ol > li');
-      log(lis, chapter.n, lis[chapter.n]);
       return $(lis[chapter.n]).addClass('active');
     };
 

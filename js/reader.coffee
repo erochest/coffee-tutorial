@@ -217,7 +217,6 @@ class NavTree
   onOpenChapter: (event) ->
     chapter = event.navigator.getCurrentChapter()
     lis = @el.find('> ol > li')
-    log lis, chapter.n, lis[chapter.n]
     $(lis[chapter.n]).addClass 'active'
 
   onCloseChapter: (event) ->
