@@ -116,14 +116,32 @@ nav#sidebar {
 
     ol {
         margin-left: 1em;
-    }
-    li {
-        cursor: pointer;
-        &:hover {
-            font-weight: bold;
-        }
-        &.active {
-            font-weight: bold;
+        li {
+            cursor: pointer;
+            // Sections are hidden by default
+            ol {
+                display: none;
+            }
+
+            &:hover {
+                font-weight: bold;
+            }
+            &.active {
+                font-weight: bold;
+                // Sections in Active Chapters
+                ol {
+                    display: block;
+                    li {
+                        font-weight: normal;
+                        &:hover {
+                            font-weight: bold;
+                        }
+                        &.active {
+                            font-weight: bold;
+                        }
+                    }
+                }
+            }
         }
     }
 }
