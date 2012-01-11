@@ -14,12 +14,46 @@ window.tutorial =
       content: """
         <h1>Coffee Data</h1>
         """
+
+      sections: [
+        {
+          title: "Numbers"
+          content: """
+            <h1>Coffee Data</h1>
+            <h2>Numbers</h2>
+            """
+        }
+        {
+          title: "Strings"
+          content: """
+            <h1>Coffee Data</h1>
+            <h2>Strings</h2>
+            """
+        }
+      ]
     }
     {
-      title: "Syntax",
+      title: "Syntax"
       content: """
         <h1>Coffee Syntax</h1>
         """
+
+      sections: [
+        {
+          title: "Loops"
+          content: """
+            <h1>Coffee Syntax</h1>
+            <h2>Loops</h2>
+            """
+        }
+        {
+          title: "Conditionals"
+          content: """
+            <h1>Coffee Syntax</h1>
+            <h2>Conditionals</h2>
+            """
+        }
+      ]
     }
     # { title: "Function", link: "docs/function.json" }
     # { title: "Class", link: "docs/class.json" }

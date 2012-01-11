@@ -10,10 +10,28 @@
         content: "<h1>About Coffee Script</h1>"
       }, {
         title: "Data",
-        content: "<h1>Coffee Data</h1>"
+        content: "<h1>Coffee Data</h1>",
+        sections: [
+          {
+            title: "Numbers",
+            content: "<h1>Coffee Data</h1>\n<h2>Numbers</h2>"
+          }, {
+            title: "Strings",
+            content: "<h1>Coffee Data</h1>\n<h2>Strings</h2>"
+          }
+        ]
       }, {
         title: "Syntax",
-        content: "<h1>Coffee Syntax</h1>"
+        content: "<h1>Coffee Syntax</h1>",
+        sections: [
+          {
+            title: "Loops",
+            content: "<h1>Coffee Syntax</h1>\n<h2>Loops</h2>"
+          }, {
+            title: "Conditionals",
+            content: "<h1>Coffee Syntax</h1>\n<h2>Conditionals</h2>"
+          }
+        ]
       }
     ],
     welcome: "<h1>Coffee Script Tutorial</h1>"
