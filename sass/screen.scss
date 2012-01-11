@@ -104,39 +104,6 @@ footer {
     color: $text-light;
 }
 
-nav#topmenu {
-    ul {
-        @include horizontal-list;
-        li {
-            width: 50pt;
-
-            a {
-                @include unstyled-link;
-                @include link-colors(#eee, #fff, #fff, #ddd, #fff);
-                cursor: pointer;
-            }
-        }
-    }
-
-    fieldset[role='mobile'] {
-        select {
-            @include full;
-        }
-    }
-
-    @media only screen and (max-width: 550px) {
-        ul {
-            display: none;
-        }
-    }
-
-    @media only screen and (min-width: 550px) {
-        fieldset[role='mobile'] {
-            display: none;
-        }
-    }
-}
-
 nav#sidebar {
     @include columns(3);
     @include alpha;
