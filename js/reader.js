@@ -1,5 +1,6 @@
 (function() {
-  var NavTree, Navigator, Reader, Repl, Viewer, WindowShade, errorStatus, onStatusName, status;
+  var NavTree, Navigator, Reader, Repl, Viewer, WindowShade, errorStatus, onStatusName, status,
+    __slice = Array.prototype.slice;
 
   WindowShade = (function() {
 
@@ -73,7 +74,8 @@
     Navigator.prototype.onCloseChapterName = 'closechapter.reader';
 
     function Navigator(book) {
-      this.n = -1;
+      this.chapter = null;
+      this.section = null;
       if (book != null) this.load(book);
     }
 
@@ -89,12 +91,13 @@
         _ref = book.chapters;
         for (i = 0, _len = _ref.length; i < _len; i++) {
           chapter = _ref[i];
-          chapter.n = i;
+          this._normalize(chapter, i);
         }
         if (this.hasBookmark()) {
-          this.to(this.getBookmark());
+          this.to.apply(this, this.getBookmark());
         } else {
-          this.n = -1;
+          this.chapter = null;
+          this.section = null;
         }
         this._postloadbook(book);
       } else {
@@ -103,26 +106,132 @@
       return this;
     };
 
+    Navigator.prototype._normalize = function(chapter, i) {
+      var j, section, _len, _ref;
+      chapter.n = i;
+      if (chapter.sections != null) {
+        _ref = chapter.sections;
+        for (j = 0, _len = _ref.length; j < _len; j++) {
+          section = _ref[j];
+          section.n = j;
+        }
+      }
+      if (!(chapter.content != null) && !(chapter.sections != null)) {
+        return chapter.content = '';
+      }
+    };
+
     Navigator.prototype.getCurrentChapter = function() {
-      return this.book.chapters[this.n];
+      if (this.chapter != null) {
+        return this.book.chapters[this.chapter];
+      } else {
+        return null;
+      }
+    };
+
+    Navigator.prototype.getCurrentSection = function() {
+      var chapter;
+      chapter = this.getCurrentChapter();
+      if ((chapter != null) && (this.section != null)) {
+        return chapter.sections[this.section];
+      } else {
+        return null;
+      }
     };
 
     Navigator.prototype.next = function() {
-      var next;
-      next = this.n + 1;
-      if (next < this.book.chapters.length) this.to(next);
+      var chapter, chapters, firstSectionFor, pos;
+      chapters = this.book.chapters;
+      firstSectionFor = function(chapter) {
+        if (chapters[chapter].content != null) {
+          return null;
+        } else {
+          return 0;
+        }
+      };
+      pos = [this.chapter, this.section];
+      log.apply(null, ['from'].concat(__slice.call(pos)));
+      if (!(this.chapter != null)) {
+        log('a');
+        pos = [0, firstSectionFor(0)];
+      } else if ((this.chapter != null) && !(this.section != null)) {
+        if (chapters[this.chapter].sections != null) {
+          log('b');
+          pos = [this.chapter, 0];
+        } else if ((this.chapter + 1) < chapters.length) {
+          log('c');
+          chapter = this.chapter + 1;
+          pos = [chapter, firstSectionFor(chapter)];
+        }
+      } else if ((this.chapter != null) && (this.section != null)) {
+        if (this.section === chapters[this.chapter].sections.length) {
+          if ((this.chapter + 1) < chapters.length) {
+            log('d');
+            chapter = this.chapter + 1;
+            pos = [chapter, firstSectionFor(chapter)];
+          }
+        } else {
+          log('e');
+          pos = [this.chapter, this.section + 1];
+        }
+      }
+      log.apply(null, ['to'].concat(__slice.call(pos)));
+      this.to.apply(this, pos);
       return this;
     };
 
     Navigator.prototype.previous = function() {
-      if (this.n > 0) this.to(this.n - 1);
+      var chapter, chapters, firstSectionFor, lastSectionFor, pos;
+      chapters = this.book.chapters;
+      firstSectionFor = function(chapter) {
+        if (chapters[chapter].content != null) {
+          return null;
+        } else {
+          return 0;
+        }
+      };
+      lastSectionFor = function(chapter) {
+        if (chapters[chapter].sections != null) {
+          return chapters[chapter].sections.length - 1;
+        } else {
+          return null;
+        }
+      };
+      pos = [this.chapter, this.section];
+      log.apply(null, ['from'].concat(__slice.call(pos)));
+      if (this.chapter === 0) {
+        if (!(this.section != null)) {
+          pos = pos;
+        } else if (this.section === 0) {
+          pos = [0, firstSectionFor(0)];
+        } else {
+          pos = [0, this.section - 1];
+        }
+      } else if (this.chapter != null) {
+        if (!(this.section != null)) {
+          chapter = this.chapter - 1;
+          pos = [chapter, lastSectionFor(chapter)];
+        } else if (this.section === 0) {
+          if (chapters[this.chapter].content != null) {
+            pos = [this.chapter, null];
+          } else {
+            chapter = this.chapter - 1;
+            pos = [chapter, lastSectionFor(chapter)];
+          }
+        } else {
+          pos = [this.chapter, this.section - 1];
+        }
+      }
+      log.apply(null, ['>'].concat(__slice.call(pos)));
+      this.to.apply(this, pos);
       return this;
     };
 
-    Navigator.prototype.to = function(n) {
-      if (n === this.n) return;
+    Navigator.prototype.to = function(chapter, section) {
+      log('to', chapter, section);
+      if (chapter === this.chapter && section === this.section) return;
       if (this._closechapter()) {
-        this.n = n;
+        this.chapter = chapter;
         this._openchapter();
         this.bookmark();
       }
@@ -136,25 +245,25 @@
 
     Navigator.prototype.saveWork = function(work) {
       var key;
-      key = "" + this.workKey + this.n;
+      key = "" + this.workKey + this.chapter;
       localStorage[key] = work;
       return this;
     };
 
     Navigator.prototype.hasWork = function() {
       var key;
-      key = "" + this.workKey + this.n;
+      key = "" + this.workKey + this.chapter;
       return localStorage[key] != null;
     };
 
     Navigator.prototype.getWork = function() {
       var key;
-      key = "" + this.workKey + this.n;
+      key = "" + this.workKey + this.chapter;
       return localStorage[key];
     };
 
     Navigator.prototype.bookmark = function() {
-      return localStorage[this.bookmarkKey] = this.n;
+      return localStorage[this.bookmarkKey] = "" + this.chapter + "." + this.section;
     };
 
     Navigator.prototype.hasBookmark = function() {
@@ -162,7 +271,10 @@
     };
 
     Navigator.prototype.getBookmark = function() {
-      return parseInt(localStorage[this.bookmarkKey]);
+      var bookmark, ch, sec, _ref;
+      bookmark = localStorage[this.bookmarkKey];
+      _ref = bookmark.split(/\./), ch = _ref[0], sec = _ref[1];
+      return [parseInt(ch, parseInt(sec))];
     };
 
     Navigator.prototype._bookevent = function(name, book) {
@@ -179,8 +291,8 @@
       event = new jQuery.Event(name);
       event.navigator = this;
       event.book = this.book;
-      event.n = this.n;
-      event.chapter = this.book.chapters[this.n];
+      event.n = this.chapter;
+      event.chapter = this.book.chapters[this.chapter];
       $('body').trigger(event);
       return !event.isDefaultPrevented();
     };
@@ -271,7 +383,9 @@
       li = $(event.target);
       chapter = li.attr('data-chapter');
       section = li.attr('data-section');
-      if (chapter != null) return reader.nav.to(parseInt(chapter));
+      section = section != null ? parseInt(section) : section;
+      log('click', chapter, section);
+      if (chapter != null) return reader.nav.to(parseInt(chapter), section);
     };
 
     return NavTree;

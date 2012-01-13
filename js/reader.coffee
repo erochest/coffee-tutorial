@@ -18,6 +18,11 @@
 # the covering elements (shades) and another selection of the elements that get
 # covered (windows).
 
+## TODO:
+# * change the *chapter events to *page
+# * update Navigator.to to move to sections
+# * update listeners to change to sections
+
 class WindowShade
   constructor: (@shades, @windows) ->
 
@@ -64,7 +69,8 @@ class Navigator
   onCloseChapterName: 'closechapter.reader'
 
   constructor: (book) ->
-    @n = -1
+    @chapter = null
+    @section = null
     this.load(book) if book?
 
   # This just defers to localStorage.
@@ -76,42 +82,138 @@ class Navigator
     oldBook = @book
     @book = book
     if this._loadbook(book)
-      chapter.n = i for chapter, i in book.chapters
+      this._normalize(chapter, i) for chapter, i in book.chapters
       if this.hasBookmark()
-        this.to this.getBookmark()
+        this.to this.getBookmark()...
       else
-        @n = -1
+        @chapter = null
+        @section = null
       this._postloadbook book
     else
       @book = oldBook
     this
 
+  # This sets the enumerations on the chapters and sections so the author
+  # doesn't have to. It also makes sure that every chapter has either content
+  # or sections. If both are missing, empty content is inserted.
+  _normalize: (chapter, i) ->
+    chapter.n = i
+    if chapter.sections?
+      section.n = j for section, j in chapter.sections
+    if not chapter.content? and not chapter.sections?
+      chapter.content = ''
+
   getCurrentChapter: ->
-    @book.chapters[@n]
+    if @chapter? then @book.chapters[@chapter] else null
+
+  getCurrentSection: ->
+    chapter = this.getCurrentChapter()
+    if chapter? and @section?
+      chapter.sections[@section]
+    else
+      null
 
   # This checks whether the next page is accessible and silently stops
-  # navigation if not.  Otherwise, it sets @n and triggers the
+  # navigation if not.  Otherwise, it sets @chapter and triggers the
   # `reader.nav.*chapter` events. `closechapter.reader.nav` can cancel this.
   next: ->
-    next = @n + 1
-    this.to next if next < @book.chapters.length
+    chapters = @book.chapters
+
+    firstSectionFor = (chapter) ->
+      if chapters[chapter].content? then null else 0
+
+    # The default is to do nothing.
+    pos = [@chapter, @section]
+    log '<', pos...
+
+    if not @chapter?
+      # [null, null]
+      log 'a'
+      pos = [0, firstSectionFor 0]
+    else if @chapter? and not @section?
+      # [c, null]
+      if chapters[@chapter].sections?
+        log 'b'
+        pos = [@chapter, 0]
+      else if (@chapter + 1) < chapters.length
+        log 'c'
+        chapter = @chapter + 1
+        pos = [chapter, firstSectionFor chapter]
+    else if @chapter? and @section?
+      # [c, last]
+      if @section == chapters[@chapter].sections.length
+        if (@chapter + 1) < chapters.length
+          log 'd'
+          chapter = @chapter + 1
+          pos = [chapter, firstSectionFor chapter]
+        # [last, last]
+      else
+        # [c, s]
+        log 'e'
+        pos = [@chapter, @section + 1]
+
+    log '<<', pos...
+    this.to pos...
     this
 
   # This checks whether it's already at the first page and silently stops
-  # navigation if so.  Otherwise, it sets @n and triggers the
+  # navigation if so.  Otherwise, it sets @chapter and triggers the
   # `reader.nav.*chapter` events. `closechapter.reader.nav` can cancel this.
   previous: ->
-    this.to(@n - 1) if @n > 0
+    chapters = @book.chapters
+
+    firstSectionFor = (chapter) ->
+      if chapters[chapter].content? then null else 0
+    lastSectionFor = (chapter) ->
+      if chapters[chapter].sections?
+        chapters[chapter].sections.length - 1
+      else
+        null
+
+    # The default is to do nothing
+    pos = [@chapter, @section]
+    log '<', pos...
+
+    if @chapter == 0
+      if not @section?
+        # [0, null]
+        pos = pos
+      else if @section == 0
+        # [0, 0]
+        pos = [0, firstSectionFor 0]
+      else
+        # [0, s]
+        pos = [0, @section - 1]
+    else if @chapter?
+      if not @section?
+        # [c, null]
+        chapter = @chapter - 1
+        pos = [chapter, lastSectionFor chapter]
+      else if @section == 0
+        # [c, 0]
+        if chapters[@chapter].content?
+          pos = [@chapter, null]
+        else
+          chapter = @chapter - 1
+          pos = [chapter, lastSectionFor chapter]
+      else
+        # [c, s]
+        pos = [@chapter, @section - 1]
+    # [null, null]
+
+    log '<<' pos...
+    this.to pos...
     this
 
   # This goes to the page given. If it's the same as the current page, nothing
-  # happens. Otherwise, it sets @n and triggers the `reader.nav.*chapter`
+  # happens. Otherwise, it sets @chapter and triggers the `reader.nav.*chapter`
   # events. `closechapter.reader.nav` can cancel this.
-  to: (n) ->
-    return if n == @n
+  to: (chapter, section) ->
+    log 'to', chapter, section
+    return if chapter == @chapter and section == @section
 
     if this._closechapter()
-      @n = n
+      @chapter = chapter
       this._openchapter()
       this.bookmark()
 
@@ -127,26 +229,28 @@ class Navigator
   # that provides an explicit interface to Local Storage.
 
   saveWork: (work) ->
-    key = "#{ this.workKey }#{ @n }"
+    key = "#{ this.workKey }#{ @chapter }"
     localStorage[key] = work
     this
 
   hasWork: ->
-    key = "#{ this.workKey }#{ @n }"
+    key = "#{ this.workKey }#{ @chapter }"
     localStorage[key]?
 
   getWork: ->
-    key = "#{ this.workKey }#{ @n }"
+    key = "#{ this.workKey }#{ @chapter }"
     localStorage[key]
 
   bookmark: ->
-    localStorage[this.bookmarkKey] = @n
+    localStorage[this.bookmarkKey] = "#{@chapter}.#{@section}"
 
   hasBookmark: ->
     localStorage[this.bookmarkKey]?
 
   getBookmark: ->
-    parseInt(localStorage[this.bookmarkKey])
+    bookmark = localStorage[this.bookmarkKey]
+    [ch, sec] = bookmark.split(/\./)
+    [parseInt ch, parseInt sec]
 
   # These methods handle triggering the `Navigator` events. The first two are
   # abstract methods for triggering classes of events. The last three use the
@@ -167,8 +271,8 @@ class Navigator
     event = new jQuery.Event name
     event.navigator = this
     event.book = @book
-    event.n = @n
-    event.chapter = @book.chapters[@n]
+    event.n = @chapter
+    event.chapter = @book.chapters[@chapter]
     $('body').trigger event
     not event.isDefaultPrevented()
 
@@ -226,8 +330,10 @@ class NavTree
     li      = $ event.target
     chapter = li.attr 'data-chapter'
     section = li.attr 'data-section'
+    section = if section? then parseInt(section) else section
+    log 'click', chapter, section
     if chapter?
-      reader.nav.to parseInt(chapter)
+      reader.nav.to parseInt(chapter), section
 
 
 # This handles running the CoffeeScript. Having a whole model class for this is
