@@ -32,6 +32,24 @@
             content: "<h1>Coffee Syntax</h1>\n<h2>Conditionals</h2>"
           }
         ]
+      }, {
+        title: "Function",
+        sections: [
+          {
+            title: "lambda",
+            content: "Hi"
+          }, {
+            title: "application",
+            content: "Bye"
+          }
+        ]
+      }, {
+        title: "Class",
+        content: "Nothing here."
+      }, {
+        title: "Modules",
+        full: true,
+        content: "Neither JS nor CS have modules. Sorry. Nothing to see here."
       }
     ],
     welcome: "<h1>Coffee Script Tutorial</h1>"

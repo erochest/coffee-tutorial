@@ -55,9 +55,28 @@ window.tutorial =
         }
       ]
     }
-    # { title: "Function", link: "docs/function.json" }
-    # { title: "Class", link: "docs/class.json" }
-    # { title: "Modules", link: "docs/module.json" }
+    {
+      title: "Function"
+      sections: [
+        {
+          title: "lambda"
+          content: """Hi"""
+        }
+        {
+          title: "application"
+          content: """Bye"""
+        }
+      ]
+    }
+    {
+      title: "Class",
+      content: "Nothing here."
+    }
+    {
+      title: "Modules"
+      full: true
+      content: "Neither JS nor CS have modules. Sorry. Nothing to see here."
+    }
     # { title: "Testing", link: "docs/testing.json" }
     # { title: "Hands-On", link: "docs/hands-on.json" }
   ],
