@@ -480,9 +480,10 @@ class Reader
       .bind(onClosePageName,  (event) => @navtree.onClosePage event)
 
     # Chapter events.
-    $(document).live(
+    $(document).on(
       'click',
       'nav#sidebar li',
+      {},
       (event) => @navtree.onClick event, reader
     )
 

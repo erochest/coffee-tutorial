@@ -570,7 +570,7 @@
       }).bind(onClosePageName, function(event) {
         return _this.navtree.onClosePage(event);
       });
-      return $(document).live('click', 'nav#sidebar li', function(event) {
+      return $(document).on('click', 'nav#sidebar li', {}, function(event) {
         return _this.navtree.onClick(event, reader);
       });
     };
