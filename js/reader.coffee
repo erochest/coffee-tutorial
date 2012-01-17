@@ -18,11 +18,6 @@
 # the covering elements (shades) and another selection of the elements that get
 # covered (windows).
 
-## TODO:
-# * change the *chapter events to *page
-# * update Navigator.to to move to sections
-# * update listeners to change to sections
-
 class WindowShade
   constructor: (@shades, @windows) ->
 
@@ -201,7 +196,7 @@ class Navigator
         pos = [@chapter, @section - 1]
     # [null, null]
 
-    log '<<' pos...
+    log '<<', pos...
     this.to pos...
     this
 

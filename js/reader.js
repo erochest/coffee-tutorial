@@ -150,7 +150,7 @@
         }
       };
       pos = [this.chapter, this.section];
-      log.apply(null, ['from'].concat(__slice.call(pos)));
+      log.apply(null, ['<'].concat(__slice.call(pos)));
       if (!(this.chapter != null)) {
         log('a');
         pos = [0, firstSectionFor(0)];
@@ -175,7 +175,7 @@
           pos = [this.chapter, this.section + 1];
         }
       }
-      log.apply(null, ['to'].concat(__slice.call(pos)));
+      log.apply(null, ['<<'].concat(__slice.call(pos)));
       this.to.apply(this, pos);
       return this;
     };
@@ -198,7 +198,7 @@
         }
       };
       pos = [this.chapter, this.section];
-      log.apply(null, ['from'].concat(__slice.call(pos)));
+      log.apply(null, ['<'].concat(__slice.call(pos)));
       if (this.chapter === 0) {
         if (!(this.section != null)) {
           pos = pos;
@@ -222,7 +222,7 @@
           pos = [this.chapter, this.section - 1];
         }
       }
-      log.apply(null, ['>'].concat(__slice.call(pos)));
+      log.apply(null, ['<<'].concat(__slice.call(pos)));
       this.to.apply(this, pos);
       return this;
     };
