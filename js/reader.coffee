@@ -127,7 +127,6 @@ class Navigator
 
     # The default is to do nothing.
     pos = [@chapter, @section]
-    log '>', pos...
 
     if not @chapter?
       # [null, null]
@@ -141,7 +140,7 @@ class Navigator
         pos = [chapter, this.firstSectionFor chapter]
     else if @chapter? and @section?
       # [c, last]
-      if @section == chapters[@chapter].sections.length
+      if @section == (chapters[@chapter].sections.length - 1)
         if (@chapter + 1) < chapters.length
           chapter = @chapter + 1
           pos = [chapter, this.firstSectionFor chapter]
@@ -150,7 +149,6 @@ class Navigator
         # [c, s]
         pos = [@chapter, @section + 1]
 
-    log '>>', pos...
     this.to pos...
     this
 
@@ -162,7 +160,6 @@ class Navigator
 
     # The default is to do nothing
     pos = [@chapter, @section]
-    log '<', pos...
 
     if @chapter == 0
       if not @section?
@@ -191,7 +188,6 @@ class Navigator
         pos = [@chapter, @section - 1]
     # [null, null]
 
-    log '<<', pos...
     this.to pos...
     this
 
@@ -199,7 +195,7 @@ class Navigator
   # happens. Otherwise, it sets @chapter and triggers the `reader.nav.*chapter`
   # events. `closechapter.reader.nav` can cancel this.
   to: (chapter, section) ->
-    log 'to', chapter, section
+    # log 'to', chapter, section
     return if chapter == @chapter and section == @section
 
     if this._closepage()
@@ -239,9 +235,14 @@ class Navigator
     localStorage[this.bookmarkKey]?
 
   getBookmark: ->
+    _parse = (n) ->
+      p = parseInt n
+      if isNaN p then null else p
     bookmark = localStorage[this.bookmarkKey]
-    [ch, sec] = bookmark.split(/\./)
-    [parseInt ch, parseInt sec]
+    if bookmark?
+      _parse mark for mark in bookmark.split(/\./)
+    else
+      [null, null]
 
   # These methods handle triggering the `Navigator` events. The first two are
   # abstract methods for triggering classes of events. The last three use the
@@ -310,12 +311,13 @@ class NavTree
 
   onOpenPage: (event) ->
     chapter = event.navigator.getCurrentChapter()
-    lis = @el.find('> ol > li')
-    $(lis[chapter.n]).addClass 'active'
+    lis  = @el.find('> ol > li')
+    chli = $(lis[chapter.n])
+    chli.addClass 'active'
 
     section = event.navigator.getCurrentSection()
     if section?
-      slis = lis.find('> ol > li')
+      slis = chli.find('> ol > li')
       $(slis[section.n]).addClass 'active'
 
   onClosePage: (event) ->
@@ -326,7 +328,6 @@ class NavTree
     chapter = li.attr 'data-chapter'
     section = li.attr 'data-section'
     section = if section? then parseInt(section) else section
-    log 'click', chapter, section
     if chapter?
       reader.nav.to parseInt(chapter), section
 

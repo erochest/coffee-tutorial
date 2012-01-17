@@ -1,6 +1,5 @@
 (function() {
-  var NavTree, Navigator, Reader, Repl, Viewer, WindowShade, errorStatus, onStatusName, status,
-    __slice = Array.prototype.slice;
+  var NavTree, Navigator, Reader, Repl, Viewer, WindowShade, errorStatus, onStatusName, status;
 
   WindowShade = (function() {
 
@@ -159,7 +158,6 @@
       var chapter, chapters, pos;
       chapters = this.book.chapters;
       pos = [this.chapter, this.section];
-      log.apply(null, ['>'].concat(__slice.call(pos)));
       if (!(this.chapter != null)) {
         pos = [0, this.firstSectionFor(0)];
       } else if ((this.chapter != null) && !(this.section != null)) {
@@ -170,7 +168,7 @@
           pos = [chapter, this.firstSectionFor(chapter)];
         }
       } else if ((this.chapter != null) && (this.section != null)) {
-        if (this.section === chapters[this.chapter].sections.length) {
+        if (this.section === (chapters[this.chapter].sections.length - 1)) {
           if ((this.chapter + 1) < chapters.length) {
             chapter = this.chapter + 1;
             pos = [chapter, this.firstSectionFor(chapter)];
@@ -179,7 +177,6 @@
           pos = [this.chapter, this.section + 1];
         }
       }
-      log.apply(null, ['>>'].concat(__slice.call(pos)));
       this.to.apply(this, pos);
       return this;
     };
@@ -188,7 +185,6 @@
       var chapter, chapters, pos;
       chapters = this.book.chapters;
       pos = [this.chapter, this.section];
-      log.apply(null, ['<'].concat(__slice.call(pos)));
       if (this.chapter === 0) {
         if (!(this.section != null)) {
           pos = pos;
@@ -212,13 +208,11 @@
           pos = [this.chapter, this.section - 1];
         }
       }
-      log.apply(null, ['<<'].concat(__slice.call(pos)));
       this.to.apply(this, pos);
       return this;
     };
 
     Navigator.prototype.to = function(chapter, section) {
-      log('to', chapter, section);
       if (chapter === this.chapter && section === this.section) return;
       if (this._closepage()) {
         this.chapter = chapter;
@@ -262,10 +256,28 @@
     };
 
     Navigator.prototype.getBookmark = function() {
-      var bookmark, ch, sec, _ref;
+      var bookmark, mark, _i, _len, _parse, _ref, _results;
+      _parse = function(n) {
+        var p;
+        p = parseInt(n);
+        if (isNaN(p)) {
+          return null;
+        } else {
+          return p;
+        }
+      };
       bookmark = localStorage[this.bookmarkKey];
-      _ref = bookmark.split(/\./), ch = _ref[0], sec = _ref[1];
-      return [parseInt(ch, parseInt(sec))];
+      if (bookmark != null) {
+        _ref = bookmark.split(/\./);
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          mark = _ref[_i];
+          _results.push(_parse(mark));
+        }
+        return _results;
+      } else {
+        return [null, null];
+      }
     };
 
     Navigator.prototype._bookevent = function(name, book) {
@@ -360,13 +372,14 @@
     };
 
     NavTree.prototype.onOpenPage = function(event) {
-      var chapter, lis, section, slis;
+      var chapter, chli, lis, section, slis;
       chapter = event.navigator.getCurrentChapter();
       lis = this.el.find('> ol > li');
-      $(lis[chapter.n]).addClass('active');
+      chli = $(lis[chapter.n]);
+      chli.addClass('active');
       section = event.navigator.getCurrentSection();
       if (section != null) {
-        slis = lis.find('> ol > li');
+        slis = chli.find('> ol > li');
         return $(slis[section.n]).addClass('active');
       }
     };
@@ -381,7 +394,6 @@
       chapter = li.attr('data-chapter');
       section = li.attr('data-section');
       section = section != null ? parseInt(section) : section;
-      log('click', chapter, section);
       if (chapter != null) return reader.nav.to(parseInt(chapter), section);
     };
 
