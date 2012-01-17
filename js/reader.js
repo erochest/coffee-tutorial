@@ -69,9 +69,9 @@
 
     Navigator.prototype.postLoadBookName = 'postloadbook.reader';
 
-    Navigator.prototype.onOpenChapterName = 'openchapter.reader';
+    Navigator.prototype.onOpenPageName = 'openpage.reader';
 
-    Navigator.prototype.onCloseChapterName = 'closechapter.reader';
+    Navigator.prototype.onClosePageName = 'closepage.reader';
 
     function Navigator(book) {
       this.chapter = null;
@@ -139,84 +139,74 @@
       }
     };
 
+    Navigator.prototype.firstSectionFor = function(chapter) {
+      if (this.book.chapters[chapter].content != null) {
+        return null;
+      } else {
+        return 0;
+      }
+    };
+
+    Navigator.prototype.lastSectionFor = function(chapter) {
+      if (this.book.chapters[chapter].sections != null) {
+        return this.book.chapters[chapter].sections.length - 1;
+      } else {
+        return null;
+      }
+    };
+
     Navigator.prototype.next = function() {
-      var chapter, chapters, firstSectionFor, pos;
+      var chapter, chapters, pos;
       chapters = this.book.chapters;
-      firstSectionFor = function(chapter) {
-        if (chapters[chapter].content != null) {
-          return null;
-        } else {
-          return 0;
-        }
-      };
       pos = [this.chapter, this.section];
-      log.apply(null, ['<'].concat(__slice.call(pos)));
+      log.apply(null, ['>'].concat(__slice.call(pos)));
       if (!(this.chapter != null)) {
-        log('a');
-        pos = [0, firstSectionFor(0)];
+        pos = [0, this.firstSectionFor(0)];
       } else if ((this.chapter != null) && !(this.section != null)) {
         if (chapters[this.chapter].sections != null) {
-          log('b');
           pos = [this.chapter, 0];
         } else if ((this.chapter + 1) < chapters.length) {
-          log('c');
           chapter = this.chapter + 1;
-          pos = [chapter, firstSectionFor(chapter)];
+          pos = [chapter, this.firstSectionFor(chapter)];
         }
       } else if ((this.chapter != null) && (this.section != null)) {
         if (this.section === chapters[this.chapter].sections.length) {
           if ((this.chapter + 1) < chapters.length) {
-            log('d');
             chapter = this.chapter + 1;
-            pos = [chapter, firstSectionFor(chapter)];
+            pos = [chapter, this.firstSectionFor(chapter)];
           }
         } else {
-          log('e');
           pos = [this.chapter, this.section + 1];
         }
       }
-      log.apply(null, ['<<'].concat(__slice.call(pos)));
+      log.apply(null, ['>>'].concat(__slice.call(pos)));
       this.to.apply(this, pos);
       return this;
     };
 
     Navigator.prototype.previous = function() {
-      var chapter, chapters, firstSectionFor, lastSectionFor, pos;
+      var chapter, chapters, pos;
       chapters = this.book.chapters;
-      firstSectionFor = function(chapter) {
-        if (chapters[chapter].content != null) {
-          return null;
-        } else {
-          return 0;
-        }
-      };
-      lastSectionFor = function(chapter) {
-        if (chapters[chapter].sections != null) {
-          return chapters[chapter].sections.length - 1;
-        } else {
-          return null;
-        }
-      };
       pos = [this.chapter, this.section];
       log.apply(null, ['<'].concat(__slice.call(pos)));
       if (this.chapter === 0) {
         if (!(this.section != null)) {
           pos = pos;
         } else if (this.section === 0) {
-          pos = [0, firstSectionFor(0)];
+          pos = [0, this.firstSectionFor(0)];
         } else {
           pos = [0, this.section - 1];
         }
       } else if (this.chapter != null) {
         if (!(this.section != null)) {
           chapter = this.chapter - 1;
-          pos = [chapter, lastSectionFor(chapter)];
+          pos = [chapter, this.lastSectionFor(chapter)];
         } else if (this.section === 0) {
           if (chapters[this.chapter].content != null) {
             pos = [this.chapter, null];
           } else {
             chapter = this.chapter - 1;
-            pos = [chapter, lastSectionFor(chapter)];
+            pos = [chapter, this.lastSectionFor(chapter)];
           }
         } else {
           pos = [this.chapter, this.section - 1];
@@ -230,16 +220,17 @@
     Navigator.prototype.to = function(chapter, section) {
       log('to', chapter, section);
       if (chapter === this.chapter && section === this.section) return;
-      if (this._closechapter()) {
+      if (this._closepage()) {
         this.chapter = chapter;
-        this._openchapter();
+        this.section = section;
+        this._openpage();
         this.bookmark();
       }
       return this;
     };
 
-    Navigator.prototype.onToChapter = function(event) {
-      this.to(event.n);
+    Navigator.prototype.onToPage = function(event) {
+      this.to.apply(this, event.pos);
       return event.preventDefault();
     };
 
@@ -286,13 +277,14 @@
       return !event.isDefaultPrevented();
     };
 
-    Navigator.prototype._chapterevent = function(name) {
+    Navigator.prototype._pageevent = function(name) {
       var event;
       event = new jQuery.Event(name);
       event.navigator = this;
       event.book = this.book;
-      event.n = this.chapter;
-      event.chapter = this.book.chapters[this.chapter];
+      event.pos = [this.chapter, this.section];
+      event.chapter = this.getCurrentChapter();
+      event.section = this.getCurrentSection();
       $('body').trigger(event);
       return !event.isDefaultPrevented();
     };
@@ -305,12 +297,12 @@
       return this._bookevent(this.postLoadBookName, book);
     };
 
-    Navigator.prototype._openchapter = function() {
-      return this._chapterevent(this.onOpenChapterName);
+    Navigator.prototype._openpage = function() {
+      return this._pageevent(this.onOpenPageName);
     };
 
-    Navigator.prototype._closechapter = function() {
-      return this._chapterevent(this.onCloseChapterName);
+    Navigator.prototype._closepage = function() {
+      return this._pageevent(this.onClosePageName);
     };
 
     return Navigator;
@@ -367,14 +359,19 @@
       return "<li data-chapter='" + i + "' data-section='" + j + "'>" + section.title + "</li>";
     };
 
-    NavTree.prototype.onOpenChapter = function(event) {
-      var chapter, lis;
+    NavTree.prototype.onOpenPage = function(event) {
+      var chapter, lis, section, slis;
       chapter = event.navigator.getCurrentChapter();
       lis = this.el.find('> ol > li');
-      return $(lis[chapter.n]).addClass('active');
+      $(lis[chapter.n]).addClass('active');
+      section = event.navigator.getCurrentSection();
+      if (section != null) {
+        slis = lis.find('> ol > li');
+        return $(slis[section.n]).addClass('active');
+      }
     };
 
-    NavTree.prototype.onCloseChapter = function(event) {
+    NavTree.prototype.onClosePage = function(event) {
       return this.el.find('.active').removeClass('active');
     };
 
@@ -439,7 +436,7 @@
 
   Viewer = (function() {
 
-    Viewer.prototype.onToChapterName = 'tochapter.reader';
+    Viewer.prototype.onToPageName = 'topage.reader';
 
     Viewer.prototype.onEvaluateName = 'evaluate.reader';
 
@@ -457,7 +454,7 @@
     Viewer.prototype.postLoadBook = function(event) {
       var book;
       book = event.book;
-      if ((book.welcome != null) && event.navigator.n === -1) {
+      if ((book.welcome != null) && !(event.navigator.chapter != null)) {
         return this.fullScreen(book.welcome);
       }
     };
@@ -465,37 +462,6 @@
     Viewer.prototype.setTitle = function(title) {
       $('header h1').html(title);
       return this.setStatus(title);
-    };
-
-    Viewer.prototype.wireTocEvents = function(links) {
-      var a, c, chapters, select, ul, _i, _len, _ref,
-        _this = this;
-      for (_i = 0, _len = links.length; _i < _len; _i++) {
-        _ref = links[_i], a = _ref[0], c = _ref[1];
-        chapters = c;
-      }
-      ul = $('nav#topmenu ul');
-      select = $('nav#topmenu select');
-      ul.find('li a').map(function(i, el) {
-        return $(el).click(function(event) {
-          return _this._tochapter(i);
-        });
-      });
-      return select.change(function(event) {
-        var i;
-        i = parseInt(select.val());
-        if (!isNaN(i)) _this._tochapter(i);
-        return event.preventDefault();
-      });
-    };
-
-    Viewer.prototype._tochapter = function(n) {
-      var event;
-      event = new jQuery.Event(this.onToChapterName);
-      event.viewer = this;
-      event.n = n;
-      $('body').trigger(event);
-      return !event.isDefaultPrevented();
     };
 
     Viewer.prototype._evaluate = function(cs) {
@@ -513,7 +479,7 @@
       });
     };
 
-    Viewer.prototype.onCloseChapter = function(event) {
+    Viewer.prototype.onClosePage = function(event) {
       var chapter;
       chapter = event.navigator.getCurrentChapter();
       if ((chapter != null) && !chapter.full) {
@@ -522,17 +488,19 @@
       return this.shades.hideAll();
     };
 
-    Viewer.prototype.onOpenChapter = function(event) {
-      var chapter, divId,
+    Viewer.prototype.onOpenPage = function(event) {
+      var chapter, divId, page, section,
         _this = this;
       chapter = event.navigator.getCurrentChapter();
-      if (!chapter.full && event.navigator.hasWork()) {
+      section = event.navigator.getCurrentSection();
+      page = section != null ? section : chapter;
+      if (!page.full && event.navigator.hasWork()) {
         $('#replinput').val(event.navigator.getWork());
       }
-      this.setStatus(chapter.title);
-      divId = chapter.full ? '#fullcontent div' : '#contentpane div';
-      return this.shades.set(chapter.full, function() {
-        if (chapter.content != null) return $(divId).html(chapter.content);
+      this.setStatus(page.title);
+      divId = page.full ? '#fullcontent div' : '#contentpane div';
+      return this.shades.set(page.full, function() {
+        if (page.content != null) return $(divId).html(page.content);
       });
     };
 
@@ -563,7 +531,7 @@
     };
 
     Reader.prototype.wireEvents = function() {
-      var onCloseChapterName, onEvaluateName, onLoadBookName, onOpenChapterName, onToChapterName, postLoadBookName,
+      var onClosePageName, onEvaluateName, onLoadBookName, onOpenPageName, onToPageName, postLoadBookName,
         _this = this;
       $('#btnprev').click(function(event) {
         return _this.nav.previous();
@@ -574,10 +542,10 @@
       $('#replgo').click(function(event) {
         return _this.viewer._evaluate($('#replinput').val());
       });
-      onToChapterName = this.viewer.onToChapterName;
+      onToPageName = this.viewer.onToPageName;
       onEvaluateName = this.viewer.onEvaluateName;
-      $(document).bind(onToChapterName, function(event) {
-        return _this.nav.onToChapter(event);
+      $(document).bind(onToPageName, function(event) {
+        return _this.nav.onToPage(event);
       }).bind(onEvaluateName, function(event) {
         return _this.repl.onEvaluate(event);
       }).bind(onStatusName, function(event) {
@@ -585,22 +553,22 @@
       });
       onLoadBookName = this.nav.onLoadBookName;
       postLoadBookName = this.nav.postLoadBookName;
-      onOpenChapterName = this.nav.onOpenChapterName;
-      onCloseChapterName = this.nav.onCloseChapterName;
+      onOpenPageName = this.nav.onOpenPageName;
+      onClosePageName = this.nav.onClosePageName;
       $(document).bind(onLoadBookName, function(event) {
         return _this.viewer.onLoadBook(event);
       }).bind(onLoadBookName, function(event) {
         return _this.navtree.onLoadBook(event);
       }).bind(postLoadBookName, function(event) {
         return _this.viewer.postLoadBook(event);
-      }).bind(onOpenChapterName, function(event) {
-        return _this.viewer.onOpenChapter(event);
-      }).bind(onOpenChapterName, function(event) {
-        return _this.navtree.onOpenChapter(event);
-      }).bind(onCloseChapterName, function(event) {
-        return _this.viewer.onCloseChapter(event);
-      }).bind(onCloseChapterName, function(event) {
-        return _this.navtree.onCloseChapter(event);
+      }).bind(onOpenPageName, function(event) {
+        return _this.viewer.onOpenPage(event);
+      }).bind(onOpenPageName, function(event) {
+        return _this.navtree.onOpenPage(event);
+      }).bind(onClosePageName, function(event) {
+        return _this.viewer.onClosePage(event);
+      }).bind(onClosePageName, function(event) {
+        return _this.navtree.onClosePage(event);
       });
       return $(document).live('click', 'nav#sidebar li', function(event) {
         return _this.navtree.onClick(event, reader);
