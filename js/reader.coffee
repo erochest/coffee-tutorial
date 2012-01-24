@@ -214,18 +214,21 @@ class Navigator
 
   # Most of the data storage is handled implicitly. These are the only methods
   # that provides an explicit interface to Local Storage.
+  
+  getWorkKey: ->
+    "#{ this.workKey }#{ @chapter }.#{ @section }"
 
   saveWork: (work) ->
-    key = "#{ this.workKey }#{ @chapter }"
+    key = this.getWorkKey()
     localStorage[key] = work
     this
 
   hasWork: ->
-    key = "#{ this.workKey }#{ @chapter }"
+    key = this.getWorkKey()
     localStorage[key]?
 
   getWork: ->
-    key = "#{ this.workKey }#{ @chapter }"
+    key = this.getWorkKey()
     localStorage[key]
 
   bookmark: ->
@@ -412,7 +415,16 @@ class Viewer
     chapter = event.navigator.getCurrentChapter()
     if chapter? and not chapter.full
       event.navigator.saveWork $('#replinput').val()
+      this.clearCanvas()
+      this.clearRepl()
     @shades.hideAll()
+
+  clearCanvas: ->
+    canvas = $('#sandbox')[0]
+    canvas.width = canvas.width
+
+  clearRepl: ->
+    $('#replinput').val ''
 
   # When opening a new chapter, populate the work, if it's visible.
   onOpenPage: (event) ->

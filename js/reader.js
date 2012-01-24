@@ -228,22 +228,26 @@
       return event.preventDefault();
     };
 
+    Navigator.prototype.getWorkKey = function() {
+      return "" + this.workKey + this.chapter + "." + this.section;
+    };
+
     Navigator.prototype.saveWork = function(work) {
       var key;
-      key = "" + this.workKey + this.chapter;
+      key = this.getWorkKey();
       localStorage[key] = work;
       return this;
     };
 
     Navigator.prototype.hasWork = function() {
       var key;
-      key = "" + this.workKey + this.chapter;
+      key = this.getWorkKey();
       return localStorage[key] != null;
     };
 
     Navigator.prototype.getWork = function() {
       var key;
-      key = "" + this.workKey + this.chapter;
+      key = this.getWorkKey();
       return localStorage[key];
     };
 
@@ -496,8 +500,20 @@
       chapter = event.navigator.getCurrentChapter();
       if ((chapter != null) && !chapter.full) {
         event.navigator.saveWork($('#replinput').val());
+        this.clearCanvas();
+        this.clearRepl();
       }
       return this.shades.hideAll();
+    };
+
+    Viewer.prototype.clearCanvas = function() {
+      var canvas;
+      canvas = $('#sandbox')[0];
+      return canvas.width = canvas.width;
+    };
+
+    Viewer.prototype.clearRepl = function() {
+      return $('#replinput').val('');
     };
 
     Viewer.prototype.onOpenPage = function(event) {
