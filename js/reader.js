@@ -1,5 +1,5 @@
 (function() {
-  var NavTree, Navigator, Reader, Repl, Viewer, WindowShade, errorStatus, onStatusName, status;
+  var NavTree, Navigator, Reader, Repl, Viewer, WindowShade, errorStatus, onStatusEvent, status;
 
   WindowShade = (function() {
 
@@ -64,13 +64,13 @@
 
     Navigator.prototype.workKey = 'reader.nav.work.';
 
-    Navigator.prototype.onLoadBookName = 'loadbook.reader';
+    Navigator.prototype.onLoadBookEvent = 'loadbook.reader';
 
-    Navigator.prototype.postLoadBookName = 'postloadbook.reader';
+    Navigator.prototype.postLoadBookEvent = 'postloadbook.reader';
 
-    Navigator.prototype.onOpenPageName = 'openpage.reader';
+    Navigator.prototype.onOpenPageEvent = 'openpage.reader';
 
-    Navigator.prototype.onClosePageName = 'closepage.reader';
+    Navigator.prototype.onClosePageEvent = 'closepage.reader';
 
     function Navigator(book) {
       this.chapter = null;
@@ -302,19 +302,19 @@
     };
 
     Navigator.prototype._loadbook = function(book) {
-      return this._bookevent(this.onLoadBookName, book);
+      return this._bookevent(this.onLoadBookEvent, book);
     };
 
     Navigator.prototype._postloadbook = function(book) {
-      return this._bookevent(this.postLoadBookName, book);
+      return this._bookevent(this.postLoadBookEvent, book);
     };
 
     Navigator.prototype._openpage = function() {
-      return this._pageevent(this.onOpenPageName);
+      return this._pageevent(this.onOpenPageEvent);
     };
 
     Navigator.prototype._closepage = function() {
-      return this._pageevent(this.onClosePageName);
+      return this._pageevent(this.onClosePageEvent);
     };
 
     return Navigator;
@@ -428,11 +428,11 @@
 
   })();
 
-  onStatusName = 'status.reader';
+  onStatusEvent = 'status.reader';
 
   status = function(source, msg) {
     var event;
-    event = new jQuery.Event(onStatusName);
+    event = new jQuery.Event(onStatusEvent);
     event.source = source;
     event.status = msg;
     $('body').trigger(event);
@@ -448,9 +448,9 @@
 
   Viewer = (function() {
 
-    Viewer.prototype.onToPageName = 'topage.reader';
+    Viewer.prototype.onToPageEvent = 'topage.reader';
 
-    Viewer.prototype.onEvaluateName = 'evaluate.reader';
+    Viewer.prototype.onEvaluateEvent = 'evaluate.reader';
 
     function Viewer() {
       this.shades = new WindowShade($('#fullcontent'), $('#repl').add('#contentpane'));
@@ -478,7 +478,7 @@
 
     Viewer.prototype._evaluate = function(cs) {
       var event;
-      event = new jQuery.Event(this.onEvaluateName);
+      event = new jQuery.Event(this.onEvaluateEvent);
       event.viewer = this;
       event.code = cs;
       $('body').trigger(event);
@@ -543,7 +543,7 @@
     };
 
     Reader.prototype.wireEvents = function() {
-      var onClosePageName, onEvaluateName, onLoadBookName, onOpenPageName, onToPageName, postLoadBookName,
+      var onClosePageEvent, onEvaluateEvent, onLoadBookEvent, onOpenPageEvent, onToPageEvent, postLoadBookEvent,
         _this = this;
       $('#btnprev').click(function(event) {
         return _this.nav.previous();
@@ -554,32 +554,32 @@
       $('#replgo').click(function(event) {
         return _this.viewer._evaluate($('#replinput').val());
       });
-      onToPageName = this.viewer.onToPageName;
-      onEvaluateName = this.viewer.onEvaluateName;
-      $(document).bind(onToPageName, function(event) {
+      onToPageEvent = this.viewer.onToPageEvent;
+      onEvaluateEvent = this.viewer.onEvaluateEvent;
+      $(document).bind(onToPageEvent, function(event) {
         return _this.nav.onToPage(event);
-      }).bind(onEvaluateName, function(event) {
+      }).bind(onEvaluateEvent, function(event) {
         return _this.repl.onEvaluate(event);
-      }).bind(onStatusName, function(event) {
+      }).bind(onStatusEvent, function(event) {
         return _this.viewer.onStatus(event);
       });
-      onLoadBookName = this.nav.onLoadBookName;
-      postLoadBookName = this.nav.postLoadBookName;
-      onOpenPageName = this.nav.onOpenPageName;
-      onClosePageName = this.nav.onClosePageName;
-      $(document).bind(onLoadBookName, function(event) {
+      onLoadBookEvent = this.nav.onLoadBookEvent;
+      postLoadBookEvent = this.nav.postLoadBookEvent;
+      onOpenPageEvent = this.nav.onOpenPageEvent;
+      onClosePageEvent = this.nav.onClosePageEvent;
+      $(document).bind(onLoadBookEvent, function(event) {
         return _this.viewer.onLoadBook(event);
-      }).bind(onLoadBookName, function(event) {
+      }).bind(onLoadBookEvent, function(event) {
         return _this.navtree.onLoadBook(event);
-      }).bind(postLoadBookName, function(event) {
+      }).bind(postLoadBookEvent, function(event) {
         return _this.viewer.postLoadBook(event);
-      }).bind(onOpenPageName, function(event) {
+      }).bind(onOpenPageEvent, function(event) {
         return _this.viewer.onOpenPage(event);
-      }).bind(onOpenPageName, function(event) {
+      }).bind(onOpenPageEvent, function(event) {
         return _this.navtree.onOpenPage(event);
-      }).bind(onClosePageName, function(event) {
+      }).bind(onClosePageEvent, function(event) {
         return _this.viewer.onClosePage(event);
-      }).bind(onClosePageName, function(event) {
+      }).bind(onClosePageEvent, function(event) {
         return _this.navtree.onClosePage(event);
       });
       return $(document).on('click', 'nav#sidebar li', {}, function(event) {

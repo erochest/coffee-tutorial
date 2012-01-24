@@ -58,10 +58,10 @@ class Navigator
   bookmarkKey      : 'reader.nav.bookmark'
   workKey          : 'reader.nav.work.'
 
-  onLoadBookName   : 'loadbook.reader'
-  postLoadBookName : 'postloadbook.reader'
-  onOpenPageName   : 'openpage.reader'
-  onClosePageName  : 'closepage.reader'
+  onLoadBookEvent   : 'loadbook.reader'
+  postLoadBookEvent : 'postloadbook.reader'
+  onOpenPageEvent   : 'openpage.reader'
+  onClosePageEvent  : 'closepage.reader'
 
   constructor: (book) ->
     @chapter = null
@@ -270,16 +270,16 @@ class Navigator
     not event.isDefaultPrevented()
 
   _loadbook: (book) ->
-    this._bookevent this.onLoadBookName, book
+    this._bookevent this.onLoadBookEvent, book
 
   _postloadbook: (book) ->
-    this._bookevent this.postLoadBookName, book
+    this._bookevent this.postLoadBookEvent, book
 
   _openpage: ->
-    this._pageevent this.onOpenPageName
+    this._pageevent this.onOpenPageEvent
 
   _closepage: ->
-    this._pageevent this.onClosePageName
+    this._pageevent this.onClosePageEvent
 
 # This handles the Navigational Tree widget.
 
@@ -357,10 +357,10 @@ class Repl
 # It triggers the `status.reader.viewer` event, which the `Viewer` listens
 # to and updates the status bar.
 
-onStatusName = 'status.reader'
+onStatusEvent = 'status.reader'
 
 status = (source, msg) ->
-  event = new jQuery.Event onStatusName
+  event = new jQuery.Event onStatusEvent
   event.source = source
   event.status = msg
   $('body').trigger event
@@ -375,8 +375,8 @@ errorStatus = (source, error) ->
 # handles updating the view based on that.
 
 class Viewer
-  onToPageName   : 'topage.reader'
-  onEvaluateName : 'evaluate.reader'
+  onToPageEvent   : 'topage.reader'
+  onEvaluateEvent : 'evaluate.reader'
 
   constructor: ->
     @shades = new WindowShade $('#fullcontent'), $('#repl').add('#contentpane')
@@ -397,7 +397,7 @@ class Viewer
     this.setStatus title
 
   _evaluate: (cs) ->
-    event = new jQuery.Event this.onEvaluateName
+    event = new jQuery.Event this.onEvaluateEvent
     event.viewer = this
     event.code   = cs
     $('body').trigger event
@@ -459,26 +459,26 @@ class Reader
     $('#replgo' ).click (event) => @viewer._evaluate $('#replinput').val()
 
     # Viewer-generated events.
-    onToPageName   = @viewer.onToPageName
-    onEvaluateName = @viewer.onEvaluateName
+    onToPageEvent   = @viewer.onToPageEvent
+    onEvaluateEvent = @viewer.onEvaluateEvent
     $(document)
-      .bind(onToPageName,   (event) => @nav.onToPage event)
-      .bind(onEvaluateName, (event) => @repl.onEvaluate event)
-      .bind(onStatusName,   (event) => @viewer.onStatus event)
+      .bind(onToPageEvent,   (event) => @nav.onToPage event)
+      .bind(onEvaluateEvent, (event) => @repl.onEvaluate event)
+      .bind(onStatusEvent,   (event) => @viewer.onStatus event)
 
     # Navigator-generated event.
-    onLoadBookName   = @nav.onLoadBookName
-    postLoadBookName = @nav.postLoadBookName
-    onOpenPageName   = @nav.onOpenPageName
-    onClosePageName  = @nav.onClosePageName
+    onLoadBookEvent   = @nav.onLoadBookEvent
+    postLoadBookEvent = @nav.postLoadBookEvent
+    onOpenPageEvent   = @nav.onOpenPageEvent
+    onClosePageEvent  = @nav.onClosePageEvent
     $(document)
-      .bind(onLoadBookName,   (event) => @viewer.onLoadBook event)
-      .bind(onLoadBookName,   (event) => @navtree.onLoadBook event)
-      .bind(postLoadBookName, (event) => @viewer.postLoadBook event)
-      .bind(onOpenPageName,   (event) => @viewer.onOpenPage event)
-      .bind(onOpenPageName,   (event) => @navtree.onOpenPage event)
-      .bind(onClosePageName,  (event) => @viewer.onClosePage event)
-      .bind(onClosePageName,  (event) => @navtree.onClosePage event)
+      .bind(onLoadBookEvent,   (event) => @viewer.onLoadBook event)
+      .bind(onLoadBookEvent,   (event) => @navtree.onLoadBook event)
+      .bind(postLoadBookEvent, (event) => @viewer.postLoadBook event)
+      .bind(onOpenPageEvent,   (event) => @viewer.onOpenPage event)
+      .bind(onOpenPageEvent,   (event) => @navtree.onOpenPage event)
+      .bind(onClosePageEvent,  (event) => @viewer.onClosePage event)
+      .bind(onClosePageEvent,  (event) => @navtree.onClosePage event)
 
     # Chapter events.
     $(document).on(
