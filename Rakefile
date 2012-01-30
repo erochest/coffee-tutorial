@@ -34,3 +34,7 @@ desc 'This watches both the Coffee Script and Compass files.'
 multitask :watch => ['coffee:watch',
                      'compass:watch']
 
+require './lib/mdprocessor'
+desc 'This compiles some markdown files into the javascript the tutorial reads.'
+Tutorial::Content::compile 'md', 'js/docs/tutorial.js', ['js/docs/tutorial.md']
+
