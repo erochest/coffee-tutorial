@@ -52,6 +52,7 @@ module Tutorial
 
         puts "writing #{json_file}"
         File.open(json_file, 'w') do |f|
+          f.write("window.#{name} = ")
           JSON.dump(srcs[0], f)
         end
       }
@@ -104,7 +105,7 @@ module Tutorial
       end
 
       def populate_meta(meta, contents)
-        meta[:contents] = contents
+        meta[:content] = contents
       end
 
       def add_children(meta, key, base_dir)
