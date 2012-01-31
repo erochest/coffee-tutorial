@@ -95,8 +95,7 @@
         if (this.hasBookmark()) {
           this.to.apply(this, this.getBookmark());
         } else {
-          this.chapter = null;
-          this.section = null;
+          this.to(0, this.firstSectionFor(0));
         }
         this._postloadbook(book);
       } else {

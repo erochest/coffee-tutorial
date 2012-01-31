@@ -81,8 +81,7 @@ class Navigator
       if this.hasBookmark()
         this.to this.getBookmark()...
       else
-        @chapter = null
-        @section = null
+        this.to 0, this.firstSectionFor 0
       this._postloadbook book
     else
       @book = oldBook
