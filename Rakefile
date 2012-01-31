@@ -36,5 +36,5 @@ multitask :watch => ['coffee:watch',
 
 require './lib/mdprocessor'
 desc 'This compiles some markdown files into the javascript the tutorial reads.'
-Tutorial::Content::compile 'md', 'js/docs/tutorial.js', ['js/docs/tutorial.md']
+Tutorial::Content::compile 'tutorial', 'js/docs/tutorial.js', ['js/docs/tutorial.md']
 
