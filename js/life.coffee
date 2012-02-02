@@ -103,6 +103,12 @@ class Life
     @gen = 0
     this.updateStatus "Conway's Life"
 
+    # This toggles processing when you click on the canvas.
+    @stopped = true
+    @env.click =>
+      @stopped = not @stopped
+      this.run() unless @stopped
+
   # This sets `n` random cells and draws the buffer.
   #
   # `n` can be an integer, which is the number of pixels to fill, or a
@@ -135,7 +141,24 @@ class Life
     @gen += 1
     this.updateStatus "Generation: #{ @gen }"
 
-    # requestAnimFrame => this.run()
+    # Don't request a new animation frame if we're not running.
+    if not @stopped
+      requestAnimFrame => this.run()
+
+  # This clears the screen and adds a blinker to the middle of the screen.
+  blinker: ->
+    @buffer.reset()
+
+    midX = Math.floor(@buffer.width  / 2)
+    midY = Math.floor(@buffer.height / 2)
+
+    @buffer
+      .set(midX, midY - 1, 255)
+      .set(midX, midY + 0, 255)
+      .set(midX, midY + 1, 255)
+
+    @buffer.draw()
+    [midX, midY]
 
   outline: ->
     @buffer.reset()
@@ -166,25 +189,44 @@ class Life
 
   # This updates the state for the next generation buffer.
   update: ->
-    for i in [0..@buffer.width]
-      for j in [0..@buffer.height]
+    total = 0
+    count = 0
+
+    width  = @buffer.width  - 1
+    height = @buffer.height - 1
+
+    for i in [0..width]
+      for j in [0..height]
+        total += 1
         @buffer.set(i, j, 255) if this.next(i, j)
 
   # This looks at the buffer and determines whether the given cell should be
   # turned on or off for the next generation. It returns a bool, with `true`
   # equal to on.
   next: (i, j) ->
-    count = 0
+    count  = 0
+    width  = @buffer.width
+    height = @buffer.height
 
     for m in [i-1..i+1]
       for n in [j-1..j+1]
-        if 0 <= m < @buffer.width and 0 <= n < @buffer.height
+        # This says:
+        # * m and n are both in bounds and
+        # * we're not looking at the current cell and
+        # * the cell we are looking at is active.
+        if (0 <= m < width && 0 <= n < height &&
+            ! (i == m && j == n) &&
+            this.active m, n)
           count += 1
 
     switch count
-      when 2 then @buffer.get(i, j, 0) == 255
+      when 2 then this.active i, j
       when 3 then true
       else false
+
+  # This returns true if the given place is active.
+  active: (x, y) ->
+    @buffer.get(x, y, 0) > 0
 
   # This clears the canvas and draws the buffer.
   draw: ->
@@ -201,6 +243,7 @@ class Life
 
 life = new Life $('#environment'), $('#status')
 life.randomFill 0.25
+# life.blinker()
 life.run()
 
 window.life = life
