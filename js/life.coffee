@@ -45,32 +45,7 @@ class BufferedCanvas
 
   # Just resets the buffers.
   resetBuffers: ->
-    size = 4 * @width * @height
-    current = new Array(size)
-    buffer  = new Array(size)
-
-    i = 0
-    while i < size
-      current[i] = 0
-      buffer[i]  = 0
-      i++
-
-    @current = current
-    @buffer  = buffer
-
-    this
-
-  # This makes the buffer current and zeros out the new buffer.
-  swapBuffers: ->
-    [@current, buffer] = [@buffer, @current]
-
-    size = buffer.length
-    i = 0
-    while i < size
-      buffer[i] = 0
-      i++
-    @buffer = buffer
-
+    @buffer  = @context.createImageData @width, @height
     this
 
   # This gets the index in the `ImageData` for position x and y.
@@ -80,19 +55,15 @@ class BufferedCanvas
   # This gets the value of the current state for the x, y pixel and the color
   # offset.
   get: (x, y, colorOffset) ->
-    @current[this.index(x, y) + colorOffset]
-
-  # This is like `get`, only it queries the buffer.
-  getBuffer: (x, y, colorOffset) ->
-    @buffer[this.index(x, y) + colorOffset]
+    @buffer.data[this.index(x, y) + colorOffset]
 
   # This sets the value for the next state.
   set: (x, y, red=0, green=0, blue=0, alpha=255) ->
     i = this.index x, y
-    @buffer[i + 0] = red
-    @buffer[i + 1] = green
-    @buffer[i + 2] = blue
-    @buffer[i + 3] = alpha
+    @buffer.data[i + 0] = red
+    @buffer.data[i + 1] = green
+    @buffer.data[i + 2] = blue
+    @buffer.data[i + 3] = alpha
 
     # Method chaining
     this
@@ -105,23 +76,144 @@ class BufferedCanvas
 
   # This swaps out the buffer and makes the @buffer the current.
   draw: ->
-    data = @context.createImageData @width, @height
-
-    buffer = @buffer
-    i = 0
-    size = buffer.length
-    while i < size
-      data.data[i] = buffer[i]
-      i++
-
-    @context.putImageData data, 0, 0
-    this.swapBuffers()
+    @context.putImageData @buffer, 0, 0
+    this.resetBuffers()
 
   # This clears the canvas.
   clear: ->
     canvas = @canvas[0]
     canvas.width = canvas.width
     this
+
+# This defines the environment. It uses some arrays of cell objects, which have
+# the properties x, y, alive, and count.
+class Environment
+
+  constructor: (@width, @height) ->
+    @world = []
+    @index = {}
+    @gen   = 0
+
+  # This clears the world.
+  clear: ->
+    @world = []
+    @index = {}
+    @gen   = 0
+
+  # This sets `n` random cells.
+  #
+  # `n` can be an integer, which is the number of pixels to fill, or a
+  # float-point percent in the range [0-1].
+  randomFill: (n) ->
+    random = (x) -> Math.floor(Math.random() * x)
+    width  = @width
+    height = @height
+    world  = []
+    index  = {}
+
+    # If n is a percentage, then get the actual number of cells to fill in.
+    count = if Math.floor(n) == 0 then Math.floor(n * width * height) else n
+
+    while count > 0
+      i = random width
+      j = random height
+      key = "#{i}-#{j}"
+      if !index[key]?
+        cell =
+          x     : i
+          y     : j
+          alive : true
+          count : 0
+        index[key] = cell
+        world.push cell
+        count--
+
+    @world = world
+    @index = index
+    @gen   = 0
+    this
+
+  # This clears the world and adds a blinker to the middle of the screen.
+  blinker: ->
+    world = []
+    index = {}
+
+    midX = Math.floor(@width  / 2)
+    midY = Math.floor(@height / 2)
+
+    for dy in [-1, 0, +1]
+      y = midY + dy
+      cell =
+        x     : midX
+        y     : y
+        alive : true
+        count : 0
+      world.push cell
+      index["#{midX}-#{y}"] = cell
+
+    @world = world
+    @index = index
+    @gen   = 0
+    this
+
+  # This updates the state for the next generation.
+  update: ->
+    width   = @width
+    height  = @height
+    index   = {}
+    next    = []
+
+    # First, iterate over the current living cells.
+    population = @world.length
+    c = 0
+    while c < population
+      cell = @world[c]
+      cellX = cell.x
+      cellY = cell.y
+
+      # Now iterate over the x offsets.
+      i = 0
+      while i < 3
+        x = cellX + i - 1
+
+        # And the y offsets.
+        j = 0
+        while j < 3
+          y = cellY + j - 1
+
+          # Don't process if we're looking at the current cell or if we're off
+          # the screen.
+          if ((i != 1 || j != 1) && (0 <= x < width && 0 <= y < height))
+            # Increment the count for existing next cells or create a new cell.
+            key = "#{x}-#{y}"
+            if index[key]?
+              index[key].count++
+            else
+              newCell =
+                x     : x
+                y     : y
+                alive : Boolean(@index[key]?.alive)
+                count : 1
+              index[key] = newCell
+              next.push newCell
+
+          j++
+        i++
+      c++
+
+    world = (cell for cell in next when this.alive cell)
+    cell.alive = true for cell in world
+    @world = world
+    @index = {}
+    for cell in world
+      @index["#{cell.x}-#{cell.y}"] = cell
+
+    @gen++
+
+  # These are the rules for whether a cell lives into the next generation.
+  alive: (cell) ->
+    ((!cell.alive && cell.count == 3) ||
+      (cell.alive && (cell.count == 2 || cell.count == 3)))
 
 # This manages the world.
 class Life
@@ -131,7 +223,7 @@ class Life
   # This takes the jQuery DOM objects for the world and the status `<div>`.
   constructor: (@env, @status) ->
     @buffer = new BufferedCanvas @env
-    @gen = 0
+    @world  = new Environment @buffer.width, @buffer.height
     this.updateStatus "Conway's Life"
 
     # This toggles processing when you click on the canvas.
@@ -145,138 +237,45 @@ class Life
   # `n` can be an integer, which is the number of pixels to fill, or a
   # float-point percent in the range [0-1].
   randomFill: (n) ->
-    random = (x) -> Math.floor(Math.random() * x)
-
-    @buffer.reset()
-    width  = @buffer.width
-    height = @buffer.height
-
-    # If n is a percentage, then get the actual number of cells to fill in.
-    count = if Math.floor(n) == 0 then Math.floor(n * width * height) else n
-
-    while count > 0
-      i = random width
-      j = random height
-      if @buffer.getBuffer(i, j, 0) == 0
-        @buffer.set i, j, 255
-        count -= 1
-
+    @world.randomFill n
     this.draw()
 
   # This runs one generation of the loop and requests the animation frame for
   # the next generation.
-  run: ->
-    this.update()
+  run: (step=false) ->
+    @start = new Date() unless @start?
+    @startGen = @world.gen unless @startGen?
+
+    @world.update()
     this.draw()
 
-    @gen += 1
-    this.updateStatus "Generation: #{ @gen }"
+    this.updateStatus "Generation: #{ @world.gen }"
 
     # Don't request a new animation frame if we're not running.
-    if not @stopped
+    if not step && not @stopped
       requestAnimFrame => this.run()
+    else
+      end = new Date()
+      elapsed = (end.getTime() - @start.getTime()) / 1000
+      this.updateStatus "Generation: #{ @world.gen } | #{ (@world.gen  - @startGen) / elapsed } generations per second."
+      @start = null
+      @startGen = null
 
   # This clears the screen and adds a blinker to the middle of the screen.
   blinker: ->
-    @buffer.reset()
-
-    midX = Math.floor(@buffer.width  / 2)
-    midY = Math.floor(@buffer.height / 2)
-
-    @buffer
-      .set(midX, midY - 1, 255)
-      .set(midX, midY + 0, 255)
-      .set(midX, midY + 1, 255)
-
-    @buffer.draw()
-    [midX, midY]
-
-  outline: ->
-    @buffer.reset()
-
-    width  = @buffer.width
-    height = @buffer.height
-
-    count = 0
-    x = 0
-    while x < width
-      @buffer
-        .set(x, 0, 255)
-        .set(x, @buffer.height - 1, 255)
-      x++
-      count += 2
-    y = 0
-    while y < height
-      @buffer
-        .set(0, y, 255)
-        .set(@buffer.width - 1, y, 255)
-      y++
-      count += 2
-
-    log @buffer.width, @buffer.height, count
+    @world.blinker()
     this.draw()
-
-  outlineRect: ->
-    @buffer.reset()
-
-    @buffer.context.strokeStyle = 'maroon'
-
-    bounds = [0, 0, @buffer.width - 1, @buffer.height - 1]
-    log bounds...
-    @buffer.context.strokeRect bounds...
-
-  # This updates the state for the next generation buffer.
-  update: ->
-    width  = @buffer.width
-    height = @buffer.height
-
-    i = 0
-    while i < width
-      j = 0
-      while j < height
-        if this.next(i, j)
-          @buffer.set(i, j, 255)
-        j++
-      i++
-
-  # This looks at the buffer and determines whether the given cell should be
-  # turned on or off for the next generation. It returns a bool, with `true`
-  # equal to on.
-  next: (i, j) ->
-    count  = 0
-    width  = @buffer.width
-    height = @buffer.height
-
-    dx = 0
-    while dx < 3
-      dy = 0
-      m = i + dx - 1
-      while dy < 3
-        n = j + dy - 1
-
-        # This says:
-        # * m and n are both in bounds and
-        # * we're not looking at the current cell and
-        # * the cell we are looking at is active.
-        if (0 <= m < width && 0 <= n < height &&
-            ! (i == m && j == n) &&
-            this.active m, n)
-          count += 1
-
-        dy++
-      dx++
-
-    switch count
-      when 2 then this.active i, j
-      when 3 then true
-      else false
-
-  # This returns true if the given place is active.
-  active: (x, y) ->
-    @buffer.get(x, y, 0) > 0
 
   # This clears the canvas and draws the buffer.
   draw: ->
+    world = @world.world
+    size  = world.length
+    i     = 0
+    while i < size
+      cell = world[i]
+      @buffer.set cell.x, cell.y, 255
+      i++
+
     @buffer.draw()
 
   # This clears the canvas.
