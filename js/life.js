@@ -102,12 +102,7 @@
         j = random(height);
         key = "" + i + "-" + j;
         if (!(index[key] != null)) {
-          cell = {
-            x: i,
-            y: j,
-            alive: true,
-            count: 0
-          };
+          cell = [i, j, true, 0];
           index[key] = cell;
           world.push(cell);
           count--;
@@ -129,12 +124,7 @@
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         dy = _ref[_i];
         y = midY + dy;
-        cell = {
-          x: midX,
-          y: y,
-          alive: true,
-          count: 0
-        };
+        cell = [midX, y, true, 0];
         world.push(cell);
         index["" + midX + "-" + y] = cell;
       }
@@ -154,8 +144,8 @@
       c = 0;
       while (c < population) {
         cell = this.world[c];
-        cellX = cell.x;
-        cellY = cell.y;
+        cellX = cell[0];
+        cellY = cell[1];
         i = 0;
         while (i < 3) {
           x = cellX + i - 1;
@@ -165,14 +155,9 @@
             if ((i !== 1 || j !== 1) && ((0 <= x && x < width) && (0 <= y && y < height))) {
               key = "" + x + "-" + y;
               if (index[key] != null) {
-                index[key].count++;
+                index[key][3]++;
               } else {
-                newCell = {
-                  x: x,
-                  y: y,
-                  alive: Boolean((_ref = this.index[key]) != null ? _ref.alive : void 0),
-                  count: 1
-                };
+                newCell = [x, y, Boolean((_ref = this.index[key]) != null ? _ref[2] : void 0), 1];
                 index[key] = newCell;
                 next.push(newCell);
               }
@@ -194,19 +179,22 @@
       }).call(this);
       for (_i = 0, _len = world.length; _i < _len; _i++) {
         cell = world[_i];
-        cell.alive = true;
+        cell[2] = true;
       }
       this.world = world;
       this.index = {};
       for (_j = 0, _len2 = world.length; _j < _len2; _j++) {
         cell = world[_j];
-        this.index["" + cell.x + "-" + cell.y] = cell;
+        this.index["" + cell[0] + "-" + cell[1]] = cell;
       }
       return this.gen++;
     };
 
     Environment.prototype.alive = function(cell) {
-      return (!cell.alive && cell.count === 3) || (cell.alive && (cell.count === 2 || cell.count === 3));
+      var alive, count;
+      alive = cell[2];
+      count = cell[3];
+      return (!alive && count === 3) || (alive && (count === 2 || count === 3));
     };
 
     return Environment;
@@ -272,7 +260,7 @@
       i = 0;
       while (i < size) {
         cell = world[i];
-        this.buffer.set(cell.x, cell.y, 255);
+        this.buffer.set(cell[0], cell[1], 255);
         i++;
       }
       return this.buffer.draw();

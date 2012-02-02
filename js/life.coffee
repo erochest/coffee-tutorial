@@ -119,11 +119,7 @@ class Environment
       j = random height
       key = "#{i}-#{j}"
       if !index[key]?
-        cell =
-          x     : i
-          y     : j
-          alive : true
-          count : 0
+        cell = [i, j, true, 0]
         index[key] = cell
         world.push cell
         count--
@@ -143,11 +139,7 @@ class Environment
 
     for dy in [-1, 0, +1]
       y = midY + dy
-      cell =
-        x     : midX
-        y     : y
-        alive : true
-        count : 0
+      cell = [midX, y, true, 0]
       world.push cell
       index["#{midX}-#{y}"] = cell
 
@@ -168,8 +160,8 @@ class Environment
     c = 0
     while c < population
       cell = @world[c]
-      cellX = cell.x
-      cellY = cell.y
+      cellX = cell[0]
+      cellY = cell[1]
 
       # Now iterate over the x offsets.
       i = 0
@@ -187,13 +179,9 @@ class Environment
             # Increment the count for existing next cells or create a new cell.
             key = "#{x}-#{y}"
             if index[key]?
-              index[key].count++
+              index[key][3]++
             else
-              newCell =
-                x     : x
-                y     : y
-                alive : Boolean(@index[key]?.alive)
-                count : 1
+              newCell = [x, y, Boolean(@index[key]?[2]), 1]
               index[key] = newCell
               next.push newCell
 
@@ -202,18 +190,20 @@ class Environment
       c++
 
     world = (cell for cell in next when this.alive cell)
-    cell.alive = true for cell in world
+    cell[2] = true for cell in world
     @world = world
     @index = {}
     for cell in world
-      @index["#{cell.x}-#{cell.y}"] = cell
+      @index["#{cell[0]}-#{cell[1]}"] = cell
 
     @gen++
 
   # These are the rules for whether a cell lives into the next generation.
   alive: (cell) ->
-    ((!cell.alive && cell.count == 3) ||
-      (cell.alive && (cell.count == 2 || cell.count == 3)))
+    alive = cell[2]
+    count = cell[3]
+    ((!alive && count == 3) ||
+      (alive && (count == 2 || count == 3)))
 
 # This manages the world.
 class Life
@@ -273,7 +263,7 @@ class Life
     i     = 0
     while i < size
       cell = world[i]
-      @buffer.set cell.x, cell.y, 255
+      @buffer.set cell[0], cell[1], 255
       i++
 
     @buffer.draw()
