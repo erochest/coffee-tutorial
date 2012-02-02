@@ -142,15 +142,21 @@
     };
 
     Life.prototype.outline = function() {
-      var count, x, y, _ref, _ref2;
+      var count, height, width, x, y;
       this.buffer.reset();
+      width = this.buffer.width;
+      height = this.buffer.height;
       count = 0;
-      for (x = 0, _ref = this.buffer.width - 1; 0 <= _ref ? x <= _ref : x >= _ref; 0 <= _ref ? x++ : x--) {
+      x = 0;
+      while (x < width) {
         this.buffer.set(x, 0, 255).set(x, this.buffer.height - 1, 255);
+        x++;
         count += 2;
       }
-      for (y = 0, _ref2 = this.buffer.height - 1; 0 <= _ref2 ? y <= _ref2 : y >= _ref2; 0 <= _ref2 ? y++ : y--) {
+      y = 0;
+      while (y < height) {
         this.buffer.set(0, y, 255).set(this.buffer.width - 1, y, 255);
+        y++;
         count += 2;
       }
       log(this.buffer.width, this.buffer.height, count);
@@ -167,41 +173,39 @@
     };
 
     Life.prototype.update = function() {
-      var count, height, i, j, total, width, _results;
-      total = 0;
-      count = 0;
-      width = this.buffer.width - 1;
-      height = this.buffer.height - 1;
+      var height, i, j, width, _results;
+      width = this.buffer.width;
+      height = this.buffer.height;
+      i = 0;
       _results = [];
-      for (i = 0; 0 <= width ? i <= width : i >= width; 0 <= width ? i++ : i--) {
-        _results.push((function() {
-          var _results2;
-          _results2 = [];
-          for (j = 0; 0 <= height ? j <= height : j >= height; 0 <= height ? j++ : j--) {
-            total += 1;
-            if (this.next(i, j)) {
-              _results2.push(this.buffer.set(i, j, 255));
-            } else {
-              _results2.push(void 0);
-            }
-          }
-          return _results2;
-        }).call(this));
+      while (i < width) {
+        j = 0;
+        while (j < height) {
+          if (this.next(i, j)) this.buffer.set(i, j, 255);
+          j++;
+        }
+        _results.push(i++);
       }
       return _results;
     };
 
     Life.prototype.next = function(i, j) {
-      var count, height, m, n, width, _ref, _ref2, _ref3, _ref4;
+      var count, dx, dy, height, m, n, width;
       count = 0;
       width = this.buffer.width;
       height = this.buffer.height;
-      for (m = _ref = i - 1, _ref2 = i + 1; _ref <= _ref2 ? m <= _ref2 : m >= _ref2; _ref <= _ref2 ? m++ : m--) {
-        for (n = _ref3 = j - 1, _ref4 = j + 1; _ref3 <= _ref4 ? n <= _ref4 : n >= _ref4; _ref3 <= _ref4 ? n++ : n--) {
+      dx = 0;
+      while (dx < 3) {
+        dy = 0;
+        m = i + dx - 1;
+        while (dy < 3) {
+          n = j + dy - 1;
           if ((0 <= m && m < width) && (0 <= n && n < height) && !(i === m && j === n) && this.active(m, n)) {
             count += 1;
           }
+          dy++;
         }
+        dx++;
       }
       switch (count) {
         case 2:

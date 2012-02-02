@@ -162,16 +162,23 @@ class Life
   outline: ->
     @buffer.reset()
 
+    width  = @buffer.width
+    height = @buffer.height
+
     count = 0
-    for x in [0..@buffer.width-1]
+    x = 0
+    while x < width
       @buffer
         .set(x, 0, 255)
         .set(x, @buffer.height - 1, 255)
+      x++
       count += 2
-    for y in [0..@buffer.height-1]
+    y = 0
+    while y < height
       @buffer
         .set(0, y, 255)
         .set(@buffer.width - 1, y, 255)
+      y++
       count += 2
 
     log @buffer.width, @buffer.height, count
@@ -188,17 +195,17 @@ class Life
 
   # This updates the state for the next generation buffer.
   update: ->
-    total = 0
-    count = 0
+    width  = @buffer.width
+    height = @buffer.height
 
-    width  = @buffer.width  - 1
-    height = @buffer.height - 1
-
-    for i in [0..width]
-      for j in [0..height]
-        total += 1
+    i = 0
+    while i < width
+      j = 0
+      while j < height
         if this.next(i, j)
           @buffer.set(i, j, 255)
+        j++
+      i++
 
   # This looks at the buffer and determines whether the given cell should be
   # turned on or off for the next generation. It returns a bool, with `true`
@@ -208,8 +215,13 @@ class Life
     width  = @buffer.width
     height = @buffer.height
 
-    for m in [i-1..i+1]
-      for n in [j-1..j+1]
+    dx = 0
+    while dx < 3
+      dy = 0
+      m = i + dx - 1
+      while dy < 3
+        n = j + dy - 1
+
         # This says:
         # * m and n are both in bounds and
         # * we're not looking at the current cell and
@@ -218,6 +230,9 @@ class Life
             ! (i == m && j == n) &&
             this.active m, n)
           count += 1
+
+        dy++
+      dx++
 
     switch count
       when 2 then this.active i, j
