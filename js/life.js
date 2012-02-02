@@ -24,8 +24,31 @@
     };
 
     BufferedCanvas.prototype.resetBuffers = function() {
-      this.current = this.context.getImageData(0, 0, this.width, this.height);
-      this.buffer = this.context.createImageData(this.current);
+      var buffer, current, i, size;
+      size = 4 * this.width * this.height;
+      current = new Array(size);
+      buffer = new Array(size);
+      i = 0;
+      while (i < size) {
+        current[i] = 0;
+        buffer[i] = 0;
+        i++;
+      }
+      this.current = current;
+      this.buffer = buffer;
+      return this;
+    };
+
+    BufferedCanvas.prototype.swapBuffers = function() {
+      var buffer, i, size, _ref;
+      _ref = [this.buffer, this.current], this.current = _ref[0], buffer = _ref[1];
+      size = buffer.length;
+      i = 0;
+      while (i < size) {
+        buffer[i] = 0;
+        i++;
+      }
+      this.buffer = buffer;
       return this;
     };
 
@@ -34,13 +57,11 @@
     };
 
     BufferedCanvas.prototype.get = function(x, y, colorOffset) {
-      return this.current.data[this.index(x, y) + colorOffset];
+      return this.current[this.index(x, y) + colorOffset];
     };
 
     BufferedCanvas.prototype.getBuffer = function(x, y, colorOffset) {
-      var i;
-      i = this.index(x, y);
-      return this.buffer.data[i + colorOffset];
+      return this.buffer[this.index(x, y) + colorOffset];
     };
 
     BufferedCanvas.prototype.set = function(x, y, red, green, blue, alpha) {
@@ -50,10 +71,10 @@
       if (blue == null) blue = 0;
       if (alpha == null) alpha = 255;
       i = this.index(x, y);
-      this.buffer.data[i + 0] = red;
-      this.buffer.data[i + 1] = green;
-      this.buffer.data[i + 2] = blue;
-      this.buffer.data[i + 3] = alpha;
+      this.buffer[i + 0] = red;
+      this.buffer[i + 1] = green;
+      this.buffer[i + 2] = blue;
+      this.buffer[i + 3] = alpha;
       return this;
     };
 
@@ -63,8 +84,17 @@
     };
 
     BufferedCanvas.prototype.draw = function() {
-      this.context.putImageData(this.buffer, 0, 0);
-      return this.resetBuffers();
+      var buffer, data, i, size;
+      data = this.context.createImageData(this.width, this.height);
+      buffer = this.buffer;
+      i = 0;
+      size = buffer.length;
+      while (i < size) {
+        data.data[i] = buffer[i];
+        i++;
+      }
+      this.context.putImageData(data, 0, 0);
+      return this.swapBuffers();
     };
 
     BufferedCanvas.prototype.clear = function() {

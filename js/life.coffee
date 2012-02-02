@@ -45,8 +45,32 @@ class BufferedCanvas
 
   # Just resets the buffers.
   resetBuffers: ->
-    @current = @context.getImageData 0, 0, @width, @height
-    @buffer  = @context.createImageData @current
+    size = 4 * @width * @height
+    current = new Array(size)
+    buffer  = new Array(size)
+
+    i = 0
+    while i < size
+      current[i] = 0
+      buffer[i]  = 0
+      i++
+
+    @current = current
+    @buffer  = buffer
+
+    this
+
+  # This makes the buffer current and zeros out the new buffer.
+  swapBuffers: ->
+    [@current, buffer] = [@buffer, @current]
+
+    size = buffer.length
+    i = 0
+    while i < size
+      buffer[i] = 0
+      i++
+    @buffer = buffer
+
     this
 
   # This gets the index in the `ImageData` for position x and y.
@@ -56,20 +80,19 @@ class BufferedCanvas
   # This gets the value of the current state for the x, y pixel and the color
   # offset.
   get: (x, y, colorOffset) ->
-    @current.data[this.index(x, y) + colorOffset]
+    @current[this.index(x, y) + colorOffset]
 
   # This is like `get`, only it queries the buffer.
   getBuffer: (x, y, colorOffset) ->
-    i = this.index x, y
-    @buffer.data[i + colorOffset]
+    @buffer[this.index(x, y) + colorOffset]
 
   # This sets the value for the next state.
   set: (x, y, red=0, green=0, blue=0, alpha=255) ->
     i = this.index x, y
-    @buffer.data[i + 0] = red
-    @buffer.data[i + 1] = green
-    @buffer.data[i + 2] = blue
-    @buffer.data[i + 3] = alpha
+    @buffer[i + 0] = red
+    @buffer[i + 1] = green
+    @buffer[i + 2] = blue
+    @buffer[i + 3] = alpha
 
     # Method chaining
     this
@@ -82,8 +105,17 @@ class BufferedCanvas
 
   # This swaps out the buffer and makes the @buffer the current.
   draw: ->
-    @context.putImageData @buffer, 0, 0
-    this.resetBuffers()
+    data = @context.createImageData @width, @height
+
+    buffer = @buffer
+    i = 0
+    size = buffer.length
+    while i < size
+      data.data[i] = buffer[i]
+      i++
+
+    @context.putImageData data, 0, 0
+    this.swapBuffers()
 
   # This clears the canvas.
   clear: ->
