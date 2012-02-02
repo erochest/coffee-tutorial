@@ -93,7 +93,7 @@
       this.buffer = new BufferedCanvas(this.env);
       this.gen = 0;
       this.updateStatus("Conway's Life");
-      this.stopped = true;
+      this.stopped = false;
       this.env.click(function() {
         _this.stopped = !_this.stopped;
         if (!_this.stopped) return _this.run();

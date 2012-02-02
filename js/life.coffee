@@ -104,7 +104,7 @@ class Life
     this.updateStatus "Conway's Life"
 
     # This toggles processing when you click on the canvas.
-    @stopped = true
+    @stopped = false
     @env.click =>
       @stopped = not @stopped
       this.run() unless @stopped
