@@ -1,4 +1,4 @@
-title: About CoffeeScript
+title: About
 full: true
 
 # About CoffeeScript
