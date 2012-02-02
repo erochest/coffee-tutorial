@@ -34,9 +34,7 @@
     };
 
     BufferedCanvas.prototype.get = function(x, y, colorOffset) {
-      var i;
-      i = this.index(x, y);
-      return this.current.data[i + colorOffset];
+      return this.current.data[this.index(x, y) + colorOffset];
     };
 
     BufferedCanvas.prototype.getBuffer = function(x, y, colorOffset) {

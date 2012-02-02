@@ -56,8 +56,7 @@ class BufferedCanvas
   # This gets the value of the current state for the x, y pixel and the color
   # offset.
   get: (x, y, colorOffset) ->
-    i = this.index x, y
-    @current.data[i + colorOffset]
+    @current.data[this.index(x, y) + colorOffset]
 
   # This is like `get`, only it queries the buffer.
   getBuffer: (x, y, colorOffset) ->
@@ -198,7 +197,8 @@ class Life
     for i in [0..width]
       for j in [0..height]
         total += 1
-        @buffer.set(i, j, 255) if this.next(i, j)
+        if this.next(i, j)
+          @buffer.set(i, j, 255)
 
   # This looks at the buffer and determines whether the given cell should be
   # turned on or off for the next generation. It returns a bool, with `true`
