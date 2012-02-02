@@ -241,7 +241,7 @@ class Life
     @status.html msg
 
 
-life = new Life $('#environment'), $('#status')
+life = new Life $('#sandbox'), $('#status')
 life.randomFill 0.25
 # life.blinker()
 life.run()

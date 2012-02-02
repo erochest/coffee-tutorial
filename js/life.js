@@ -235,7 +235,7 @@
 
   })();
 
-  life = new Life($('#environment'), $('#status'));
+  life = new Life($('#sandbox'), $('#status'));
 
   life.randomFill(0.25);
 
