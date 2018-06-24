@@ -16,7 +16,7 @@ knowledge of programming.
 ## Other Links
 
 * [CoffeeScript](http://jashkenas.github.com/coffee-script/)
-* [Jasmine](http://pivotal.github.com/jasmine/)
+* [Jasmine](https://jasmine.github.io/)
 
 ## Stray Thoughts
 
